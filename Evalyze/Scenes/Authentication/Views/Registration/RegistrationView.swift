@@ -14,7 +14,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "ФИО"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -23,7 +23,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
@@ -40,7 +40,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "Иванов Иван Иванович",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -49,7 +49,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Email"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -75,7 +75,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "example@email.com",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -84,7 +84,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Пароль"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -93,7 +93,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = UIColor(hex: "#2C2C2E")
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
@@ -111,7 +111,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "password",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -153,16 +153,16 @@ final class RegistrationView: UIView {
         button.contentHorizontalAlignment = .left
         
         button.setTitle("Выберите группу", for: .normal)
-        button.setTitleColor(.secondaryTextColor, for: .normal)
+        button.setTitleColor(.secondaryTextApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansRegular, size: 16)
         
-        let arrowImage = UIImage(systemName: "chevron.down")?.withTintColor(.secondaryTextColor, renderingMode: .alwaysOriginal)
+        let arrowImage = UIImage(systemName: "chevron.down")?.withTintColor(.secondaryTextApp, renderingMode: .alwaysOriginal)
         button.setImage(arrowImage, for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         
         var config = UIButton.Configuration.plain()
         config.title = "Выберите группу"
-        config.baseForegroundColor = .secondaryTextColor
+        config.baseForegroundColor = .secondaryTextApp
         config.image = arrowImage
         config.imagePlacement = .trailing
         config.imagePadding = 10
@@ -181,7 +181,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Создайте группы"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         label.isHidden = true
         return label
@@ -191,7 +191,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         field.isHidden = true
         
         field.autocorrectionType = .no
@@ -209,7 +209,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "Введите названия групп через запятую",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -221,7 +221,7 @@ final class RegistrationView: UIView {
         button.isHidden = true
         
         button.setTitle("+ Добавить группу", for: .normal)
-        button.setTitleColor(.secondaryTextColor, for: .normal)
+        button.setTitleColor(.secondaryTextApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansRegular, size: 14)
         
         return button
@@ -318,7 +318,6 @@ final class RegistrationView: UIView {
     }
     
     private final func configureGroupElements() {
-        // Настройка элементов для студентов
         self.addSubview(groupButton)
         groupButton.pinTop(to: roleSwitch.bottomAnchor, 25)
         groupButton.pinHorizontal(to: self)
@@ -343,15 +342,17 @@ final class RegistrationView: UIView {
         addGroupButton.addTarget(self, action: #selector(addGroupButtonTapped), for: .touchUpInside)
     }
     
+    private var registrationButtonTopConstraint: NSLayoutConstraint?
+    
     private final func configureRegistrationButton() {
         self.addSubview(registrationButton)
-        
-        // Кнопка будет привязана к нижнему элементу в зависимости от роли
-        updateRegistrationButtonConstraints()
         
         registrationButton.pinHorizontal(to: self)
         registrationButton.setHeight(50)
         registrationButton.pinBottom(to: self, 20)
+        
+        registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: groupButton.bottomAnchor, constant: 35)
+        registrationButtonTopConstraint?.isActive = true
         
         registrationButton.addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
         registrationButton.addTarget(self, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
@@ -359,14 +360,15 @@ final class RegistrationView: UIView {
     }
     
     private func updateRegistrationButtonConstraints() {
-        registrationButton.removeFromSuperview()
-        self.addSubview(registrationButton)
+        registrationButtonTopConstraint?.isActive = false
         
-        if roleSwitch.selectedSegmentIndex == 0 { // Студент
-            registrationButton.pinTop(to: groupButton.bottomAnchor, 35)
-        } else { // Преподаватель
-            registrationButton.pinTop(to: addGroupButton.bottomAnchor, 35)
+        if roleSwitch.selectedSegmentIndex == 0 {
+            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: groupButton.bottomAnchor, constant: 35)
+        } else {
+            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: addGroupButton.bottomAnchor, constant: 35)
         }
+        
+        registrationButtonTopConstraint?.isActive = true
     }
     
     @objc private func buttonTouchDown() {
@@ -377,13 +379,14 @@ final class RegistrationView: UIView {
     }
     
     @objc private func roleSwitchChanged() {
+        if roleSwitch.selectedSegmentIndex == 0 {
+            showStudentElements()
+        } else {
+            showTeacherElements()
+        }
+        updateRegistrationButtonConstraints()
+        
         UIView.animate(withDuration: 0.3) {
-            if self.roleSwitch.selectedSegmentIndex == 0 { // Студент
-                self.showStudentElements()
-            } else { // Преподаватель
-                self.showTeacherElements()
-            }
-            self.updateRegistrationButtonConstraints()
             self.layoutIfNeeded()
         }
     }
@@ -429,13 +432,11 @@ final class RegistrationView: UIView {
     @objc private func addGroupButtonTapped() {
         guard let groupText = createGroupField.text, !groupText.isEmpty else { return }
         
-        // Разбиваем по запятым и очищаем от пробелов
         let newGroups = groupText.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         
         createdGroups.append(contentsOf: newGroups)
         createGroupField.text = ""
         
-        // Обновляем placeholder с количеством созданных групп
         let groupCount = createdGroups.count
         createGroupField.attributedPlaceholder = NSAttributedString(
             string: "Создано групп: \(groupCount). Добавить еще?",
@@ -464,9 +465,8 @@ final class RegistrationView: UIView {
             if let selectedGroup = groupButton.titleLabel?.text, selectedGroup != "Выберите группу" {
                 groups = [selectedGroup]
             }
-        } else { // Преподаватель
+        } else {
             groups = createdGroups
-            // Если есть текст в поле, добавляем его тоже
             if let fieldText = createGroupField.text, !fieldText.isEmpty {
                 let additionalGroups = fieldText.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                 groups.append(contentsOf: additionalGroups)
@@ -485,7 +485,7 @@ extension RegistrationView: UITextFieldDelegate {
         } else if textField == emailField {
             self.passwordField.becomeFirstResponder()
         } else if textField == passwordField {
-            if roleSwitch.selectedSegmentIndex == 1 { // Преподаватель
+            if roleSwitch.selectedSegmentIndex == 1 {
                 self.createGroupField.becomeFirstResponder()
             } else {
                 textField.resignFirstResponder()
