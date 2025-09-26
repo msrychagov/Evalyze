@@ -12,7 +12,11 @@ final class LoginView: UIView {
         let label = UILabel()
         label.text = "Email"
         label.setCustomFont(.sansRegular, size: 16)
+<<<<<<< HEAD
         label.textColor = .mainTextColor
+=======
+        label.textColor = .mainTextApp
+>>>>>>> dev
         label.textAlignment = .left
         return label
     }()
@@ -21,7 +25,11 @@ final class LoginView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
+<<<<<<< HEAD
         field.textColor = .mainTextColor
+=======
+        field.textColor = .mainTextApp
+>>>>>>> dev
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
@@ -38,7 +46,11 @@ final class LoginView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "example@email.com",
+<<<<<<< HEAD
             attributes: [.foregroundColor: UIColor.secondaryTextColor]
+=======
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
+>>>>>>> dev
         )
         return field
     }()
@@ -47,7 +59,11 @@ final class LoginView: UIView {
         let label = UILabel()
         label.text = "Пароль"
         label.setCustomFont(.sansRegular, size: 16)
+<<<<<<< HEAD
         label.textColor = .mainTextColor
+=======
+        label.textColor = .mainTextApp
+>>>>>>> dev
         label.textAlignment = .left
         return label
     }()
@@ -56,7 +72,11 @@ final class LoginView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
+<<<<<<< HEAD
         field.textColor = .mainTextColor
+=======
+        field.textColor = .mainTextApp
+>>>>>>> dev
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
@@ -74,7 +94,11 @@ final class LoginView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "password",
+<<<<<<< HEAD
             attributes: [.foregroundColor: UIColor.secondaryTextColor]
+=======
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
+>>>>>>> dev
         )
         return field
     }()
@@ -85,7 +109,11 @@ final class LoginView: UIView {
         button.setTitleColor(.grayApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansBold, size: 18)
         button.layer.cornerRadius = 10
+<<<<<<< HEAD
         button.backgroundColor = .mainTextColor
+=======
+        button.backgroundColor = .mainTextApp
+>>>>>>> dev
         return button
     }()
     

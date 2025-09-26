@@ -23,13 +23,6 @@ struct Student {
     let email: String
 }
 
-struct Question {
-    let id: String
-    let text: String
-    let type: QuestionType
-    let maxScore: Double
-}
-
 enum QuestionType {
     case openEnded
     case multipleChoice

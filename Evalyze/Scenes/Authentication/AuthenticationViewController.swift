@@ -20,7 +20,11 @@ final class AuthenticationViewController: UIViewController {
         let label = UILabel()
         label.setCustomFont(.sansBold, size: 20)
         label.textAlignment = .center
+<<<<<<< HEAD
         label.textColor = .mainTextColor
+=======
+        label.textColor = .mainTextApp
+>>>>>>> dev
         label.text = "Система тестирования"
         return label
     }()
@@ -28,7 +32,11 @@ final class AuthenticationViewController: UIViewController {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.setCustomFont(.sansRegular, size: 16)
+<<<<<<< HEAD
         label.textColor = .secondaryTextColor
+=======
+        label.textColor = .secondaryTextApp
+>>>>>>> dev
         label.numberOfLines = 3
         label.textAlignment = .center
         label.text = "Войдите в систему для доступа к тестированию"
@@ -48,7 +56,11 @@ final class AuthenticationViewController: UIViewController {
         ], for: .selected)
         
         segmentedControl.setTitleTextAttributes([
+<<<<<<< HEAD
             .foregroundColor: UIColor.secondaryTextColor,
+=======
+            .foregroundColor: UIColor.secondaryTextApp,
+>>>>>>> dev
             .font: UIFont.custom(.sansRegular, size: 14)
         ], for: .normal)
         
