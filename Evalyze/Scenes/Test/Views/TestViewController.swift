@@ -26,6 +26,10 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
     private let nextButton = UIButton()
     private let finishButton = UIButton()
 
+    // Exam protection
+    private var protection: ExamProtectionManager?
+    private var didForceFinish = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blackApp
@@ -36,7 +40,10 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
         swipeDown.direction = .down
         view.addGestureRecognizer(swipeDown)
 
-        // Заголовок
+        protection = ExamProtectionManager(targetView: view, onScreenshot: { [weak self] in
+            self?.handleScreenshotDetected()
+        })
+
         navigationItem.title = "Тест"
         navigationController?.navigationBar.titleTextAttributes = [
             .foregroundColor: UIColor.white,
@@ -44,7 +51,6 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
         ]
         navigationItem.hidesBackButton = true
 
-        // Толстая стрелка
         let config = UIImage.SymbolConfiguration(weight: .bold)
         let backImage = UIImage(systemName: "chevron.left", withConfiguration: config)
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -61,8 +67,7 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
-
-
+    
     @objc private func customBackTapped() {
         let alert = UIAlertController(
             title: "Выйти из теста?",
@@ -89,7 +94,6 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
         questionSelectorScroll.showsHorizontalScrollIndicator = false
 
         questionSelectorScroll.addSubview(questionSelectorStack)
-
         questionSelectorStack.pin(to: questionSelectorScroll)
         questionSelectorStack.pinHeight(to: questionSelectorScroll.heightAnchor)
 
@@ -149,6 +153,20 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
 
         questionSelectorScroll.setHeight(40)
         finishButton.setHeight(50)
+    }
+
+    // MARK: - Screenshot handling
+    private func handleScreenshotDetected() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.didForceFinish { return }
+            self.didForceFinish = true
+            if let presented = self.presentedViewController {
+                presented.dismiss(animated: false, completion: nil)
+            }
+            // Принудительное завершение теста при скриншоте
+            self.presenter?.forceFinish()
+        }
     }
 
     // MARK: - TestViewProtocol

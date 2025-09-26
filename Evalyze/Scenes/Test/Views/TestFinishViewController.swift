@@ -40,7 +40,10 @@ final class TestFinishViewController: UIViewController {
         view.backgroundColor = .blackApp
         view.addSubview(titleLabel)
         view.addSubview(textView)
-        
+
+        navigationItem.hidesBackButton = true
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+
         titleLabel.pinTop(to: view.safeAreaLayoutGuide.topAnchor, 16)
         titleLabel.pinCenterX(to: view)
 

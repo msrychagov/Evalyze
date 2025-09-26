@@ -13,4 +13,5 @@ protocol TestPresenterProtocol: AnyObject {
     func prevTapped()
     func finishTapped()
     func goToQuestion(index: Int)
+    func forceFinish()
 }

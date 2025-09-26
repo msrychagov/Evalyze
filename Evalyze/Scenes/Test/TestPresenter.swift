@@ -8,19 +8,23 @@
 import UIKit
 
 final class TestPresenter: TestPresenterProtocol {
+    // MARK: - Dependencies
     weak var view: TestViewProtocol?
     var interactor: TestInteractorInputProtocol
     var router: TestRouterProtocol
 
+    // MARK: - State
     private var questions: [Question] = []
     private var currentIndex: Int = 0
 
+    // MARK: - Init
     init(view: TestViewProtocol, interactor: TestInteractorInputProtocol, router: TestRouterProtocol) {
         self.view = view
         self.interactor = interactor
         self.router = router
     }
 
+    // MARK: - Lifecycle
     func viewDidLoad() {
         interactor.fetchIntroInfo()
     }
@@ -29,6 +33,7 @@ final class TestPresenter: TestPresenterProtocol {
         interactor.fetchQuestions()
     }
 
+    // MARK: - User actions
     func answerChanged(_ text: String) {
         guard currentIndex < questions.count else { return }
         questions[currentIndex].answer = text
@@ -49,18 +54,26 @@ final class TestPresenter: TestPresenterProtocol {
     func finishTapped() {
         if let vc = view as? UIViewController {
             router.presentFinishConfirmation(from: vc) { [weak self] in
-                guard let self = self else { return }
-                self.view?.showSubmitting()
-                let answers = Dictionary(uniqueKeysWithValues: self.questions.map { ($0.id, $0.answer ?? "") })
-                self.interactor.submitAnswers(answers)
+                self?.submitAnswers()
             }
         }
+    }
+
+    func forceFinish() {
+        submitAnswers()
     }
 
     func goToQuestion(index: Int) {
         guard index >= 0, index < questions.count else { return }
         currentIndex = index
         showCurrentQuestion()
+    }
+
+    // MARK: - Private helpers
+    private func submitAnswers() {
+        view?.showSubmitting()
+        let answers = Dictionary(uniqueKeysWithValues: questions.map { ($0.id, $0.answer ?? "") })
+        interactor.submitAnswers(answers)
     }
 
     private func showCurrentQuestion() {
@@ -75,6 +88,7 @@ final class TestPresenter: TestPresenterProtocol {
     }
 }
 
+// MARK: - TestInteractorOutputProtocol
 extension TestPresenter: TestInteractorOutputProtocol {
     func didLoadIntro(_ info: String) {
         view?.showIntro(with: info)
