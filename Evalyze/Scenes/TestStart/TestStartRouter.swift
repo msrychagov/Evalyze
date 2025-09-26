@@ -15,16 +15,7 @@ final class TestStartRouter: TestStartRoutingLogic {
     weak var view: UIViewController?
     
     func routeToTestInfo() {
-        // Here we'll navigate to TestInfo screen
-        // For now, just show success message
-        let alert = UIAlertController(
-            title: "Тест запущен",
-            message: "Тестирование успешно начато",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
-            self?.view?.navigationController?.popViewController(animated: true)
-        })
-        view?.present(alert, animated: true)
+        let testCloseVC = TestInfoAssembly.build()
+        view?.navigationController?.pushViewController(testCloseVC, animated: true)
     }
 }
