@@ -14,6 +14,7 @@ extension UIColor {
     static let lightGrayApp = UIColor.adaptiveColor(lightHex: "#2C2C2E", darkHex: "#2C2C2E")
     static let mainTextColor = UIColor.white
     static let secondaryTextColor = UIColor.white.withAlphaComponent(0.8)
+    static let blueAccent = UIColor.adaptiveColor(lightHex: "#007AFF", darkHex: "#007AFF")
 }
 
 extension UIColor {
