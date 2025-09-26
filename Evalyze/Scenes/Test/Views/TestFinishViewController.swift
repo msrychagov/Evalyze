@@ -20,7 +20,7 @@ final class TestFinishViewController: UIViewController {
         let l = UILabel()
         l.text = "Результат теста"
         l.font = UIFont.custom(.sansBold, size: 22)
-        l.textColor = .mainTextColor
+        l.textColor = .mainTextApp
         return l
     }()
 
@@ -28,7 +28,7 @@ final class TestFinishViewController: UIViewController {
         let tv = UITextView()
         tv.isEditable = false
         tv.font = UIFont.custom(.sansRegular, size: 15)
-        tv.textColor = .mainTextColor
+        tv.textColor = .mainTextApp
         tv.backgroundColor = .lightGrayApp
         tv.layer.cornerRadius = 10
         tv.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)

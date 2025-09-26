@@ -5,20 +5,6 @@
 //  Created by Эльвира Матвеенко on 25.09.2025.
 //
 
-final class NonSelectableTextView: UITextView {
-    override var canBecomeFirstResponder: Bool { true } // ввод разрешён
-    override var selectedTextRange: UITextRange? {
-        get { nil } // не даём выделять
-        set { }     // игнорируем попытку выделения
-    }
-    
-    // Отключаем контекстное меню (копировать/вырезать/вставить)
-    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        return false
-    }
-}
-
-
 import UIKit
 
 final class TestViewController: UIViewController, TestViewProtocol, UITextViewDelegate {
@@ -93,7 +79,7 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
     private func setupUI() {
         // progress label
         progressLabel.font = UIFont.custom(.sansRegular, size: 14)
-        progressLabel.textColor = .secondaryTextColor
+        progressLabel.textColor = .secondaryTextApp
         progressLabel.textAlignment = .left
 
         // selector
@@ -114,17 +100,17 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
 
         // labels
         questionTitleLabel.font = UIFont.custom(.sansBold, size: 18)
-        questionTitleLabel.textColor = .mainTextColor
+        questionTitleLabel.textColor = .mainTextApp
         questionTitleLabel.numberOfLines = 0
 
         promptLabel.font = UIFont.custom(.sansRegular, size: 16)
-        promptLabel.textColor = .secondaryTextColor
+        promptLabel.textColor = .secondaryTextApp
         promptLabel.numberOfLines = 0
 
         // answer
         answerTextView.font = UIFont.custom(.sansRegular, size: 16)
         answerTextView.backgroundColor = .lightGrayApp
-        answerTextView.textColor = .mainTextColor
+        answerTextView.textColor = .mainTextApp
         answerTextView.layer.cornerRadius = 10
         answerTextView.delegate = self
         answerTextView.textContainerInset = UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12)
@@ -192,7 +178,7 @@ final class TestViewController: UIViewController, TestViewProtocol, UITextViewDe
 
         for case let btn as UIButton in questionSelectorStack.arrangedSubviews {
             if btn.tag == index - 1 {
-                btn.backgroundColor = .mainTextColor
+                btn.backgroundColor = .mainTextApp
                 btn.setTitleColor(.blackApp, for: .normal)
             } else {
                 btn.backgroundColor = .lightGrayApp

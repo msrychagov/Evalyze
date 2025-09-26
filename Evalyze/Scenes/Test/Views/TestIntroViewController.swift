@@ -13,7 +13,7 @@ final class TestIntroViewController: UIViewController, TestViewProtocol {
     private let titleLabel: UILabel = {
         let l = UILabel()
         l.font = UIFont.custom(.sansBold, size: 24)
-        l.textColor = .mainTextColor
+        l.textColor = .mainTextApp
         l.textAlignment = .center
         l.text = "Готовы начать тест?"
         return l
@@ -22,7 +22,7 @@ final class TestIntroViewController: UIViewController, TestViewProtocol {
     private let infoLabel: UILabel = {
         let l = UILabel()
         l.font = UIFont.custom(.sansRegular, size: 16)
-        l.textColor = .secondaryTextColor
+        l.textColor = .secondaryTextApp
         l.numberOfLines = 0
         return l
     }()
