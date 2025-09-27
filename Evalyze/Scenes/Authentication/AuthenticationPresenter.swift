@@ -163,6 +163,11 @@ final class UserManager {
     }
     
     func getCurrentUser() -> User? {
+        if let user = currentUser {
+            print("👤 Current user: \(user.fullName) (ID: \(user.id), Role: \(user.role))")
+        } else {
+            print("❌ No current user found")
+        }
         return currentUser
     }
     

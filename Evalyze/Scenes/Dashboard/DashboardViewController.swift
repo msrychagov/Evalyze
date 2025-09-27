@@ -179,6 +179,11 @@ final class DashboardViewController: UIViewController {
             testsListVC.view.transform = .identity
         }
     }
+    
+    // MARK: Public Methods
+    func refreshCurrentTestsList() {
+        currentTestsListViewController?.refreshTests()
+    }
 }
 
 // MARK: - CustomSegmentedControlDelegate
@@ -209,9 +214,21 @@ extension DashboardViewController: TestsListViewControllerDelegate {
                 navigationController?.pushViewController(testResultsVC, animated: true)
             }
         } else {
-            // Переход к intro экрану теста
-            let testIntroVC = TestRouter.assembleModule()
-            navigationController?.pushViewController(testIntroVC, animated: true)
+            // Для незавершенных тестов разделяем логику по ролям
+            if currentUser?.isTeacher == true {
+                // Преподаватель не может проходить тесты, только создавать и оценивать
+                let alert = UIAlertController(
+                    title: "Недоступно",
+                    message: "Преподаватели не могут проходить тесты. Вы можете только создавать тесты и оценивать результаты студентов.",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                present(alert, animated: true)
+            } else {
+                // Студент может проходить тесты
+                let testIntroVC = TestRouter.assembleModule()
+                navigationController?.pushViewController(testIntroVC, animated: true)
+            }
         }
     }
 }

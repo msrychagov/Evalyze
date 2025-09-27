@@ -27,6 +27,7 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     // MARK: Properties
     private var testModel = TestCreationModel()
     private var availableQuestions: [Question] = []
+    private var availableGroups: [String] = []
     
     // MARK: Lifecycle
     override func viewDidLoad() {
@@ -37,12 +38,31 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     
     // MARK: TestCreationViewProtocol
     func showGroups(_ groups: [String]) {
-        // Groups will be shown in dropdown
+        availableGroups = groups
+        // Обновляем заголовок кнопки группы
+        if groups.isEmpty {
+            groupButton.setTitle("Нет доступных групп", for: .normal)
+            groupButton.isEnabled = false
+        } else {
+            groupButton.setTitle("Выберите группу", for: .normal)
+            groupButton.isEnabled = true
+        }
     }
     
     func showQuestions(_ questions: [Question]) {
-        // Questions will be shown in selection screen
+        print("📝 Received \(questions.count) questions for selection")
         availableQuestions = questions
+        
+        // Обновляем кнопку вопросов если она уже есть на экране
+        DispatchQueue.main.async {
+            if questions.isEmpty {
+                self.questionsButton.setTitle("Нет доступных вопросов", for: .normal)
+                self.questionsButton.isEnabled = false
+            } else {
+                self.questionsButton.setTitle("Выберите вопросы (0)", for: .normal)
+                self.questionsButton.isEnabled = true
+            }
+        }
     }
     
     func showError(_ message: String) {
@@ -327,9 +347,14 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     }
     
     @objc private func groupButtonTapped() {
+        guard !availableGroups.isEmpty else {
+            showError("У вас нет созданных групп. Сначала создайте группы в разделе регистрации.")
+            return
+        }
+        
         let alert = UIAlertController(title: "Выберите группу", message: nil, preferredStyle: .actionSheet)
         
-        for group in TestCreationModel.mockGroups {
+        for group in availableGroups {
             alert.addAction(UIAlertAction(title: group, style: .default) { _ in
                 self.testModel.selectedGroup = group
                 self.groupButton.setTitle(group, for: .normal)
@@ -342,7 +367,10 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     }
     
     @objc private func questionsButtonTapped() {
+        print("🔘 Questions button tapped. Available questions: \(availableQuestions.count)")
+        
         guard !availableQuestions.isEmpty else {
+            print("❌ No available questions found")
             showError("Сначала загрузите список вопросов")
             return
         }
@@ -352,7 +380,9 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
             selectedQuestions: testModel.selectedQuestions
         ) { [weak self] selected in
             guard let self = self else { return }
+            print("📝 Questions selection callback: received \(selected.count) questions")
             self.testModel.selectedQuestions = selected
+            self.presenter?.didUpdateSelectedQuestions(selected)
             self.updateQuestionsButton()
         }
         
@@ -383,6 +413,7 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     // MARK: Helpers
     func updateQuestionsButton() {
         let count = testModel.selectedQuestions.count
+        print("🔄 Updating questions button: \(count) questions selected")
         questionsButton.setTitle("Выберите вопросы (\(count))", for: .normal)
     }
 }
@@ -396,10 +427,20 @@ extension TestCreationViewController: UITextViewDelegate {
         }
     }
     
+    func textViewDidChange(_ textView: UITextView) {
+        // Обновляем модель в реальном времени
+        if textView.textColor == .mainTextApp {
+            testModel.description = textView.text
+            presenter?.didUpdateDescription(testModel.description)
+        }
+    }
+    
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
             textView.text = "Описание теста"
             textView.textColor = .secondaryTextApp
+            testModel.description = ""
+            presenter?.didUpdateDescription("")
         } else {
             testModel.description = textView.text
             presenter?.didUpdateDescription(testModel.description)

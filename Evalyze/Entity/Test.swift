@@ -7,9 +7,9 @@
 
 import Foundation
 
-enum TestStatus {
-    case upcoming
-    case completed
+enum TestStatus: String, CaseIterable {
+    case upcoming = "upcoming"
+    case completed = "completed"
 }
 
 struct Test {
@@ -20,6 +20,7 @@ struct Test {
     let duration: TimeInterval // в секундах
     let status: TestStatus
     let createdAt: Date
+    let createdBy: String // ID преподавателя, создавшего тест
     let dueDate: Date?
     let completedAt: Date?
     let score: Int?
@@ -32,6 +33,7 @@ struct Test {
         questions: [Question],
         duration: TimeInterval,
         status: TestStatus,
+        createdBy: String,
         createdAt: Date = Date(),
         dueDate: Date? = nil,
         completedAt: Date? = nil,
@@ -45,6 +47,7 @@ struct Test {
         self.duration = duration
         self.status = status
         self.createdAt = createdAt
+        self.createdBy = createdBy
         self.dueDate = dueDate
         self.completedAt = completedAt
         self.score = score
@@ -66,6 +69,7 @@ extension Test {
             ],
             duration: 3600, // 1 час
             status: .upcoming,
+            createdBy: "teacher_1", // ID преподавателя математики
             dueDate: Calendar.current.date(byAdding: .day, value: 3, to: Date())
         ),
         Test(
@@ -79,6 +83,7 @@ extension Test {
             ],
             duration: 5400, // 1.5 часа
             status: .upcoming,
+            createdBy: "teacher_2", // ID преподавателя программирования
             dueDate: Calendar.current.date(byAdding: .day, value: 7, to: Date())
         ),
         Test(
@@ -92,6 +97,7 @@ extension Test {
             ],
             duration: 2700, // 45 минут
             status: .upcoming,
+            createdBy: "teacher_1", // ID преподавателя математики
             dueDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())
         )
     ]
@@ -107,6 +113,7 @@ extension Test {
             ],
             duration: 1800, // 30 минут
             status: .completed,
+            createdBy: "teacher_1", // ID преподавателя математики
             completedAt: Calendar.current.date(byAdding: .day, value: -2, to: Date()),
             score: 8,
             maxScore: 10
@@ -122,6 +129,7 @@ extension Test {
             ],
             duration: 2400, // 40 минут
             status: .completed,
+            createdBy: "teacher_2", // ID преподавателя программирования
             completedAt: Calendar.current.date(byAdding: .day, value: -5, to: Date()),
             score: 9,
             maxScore: 10
@@ -137,6 +145,7 @@ extension Test {
             ],
             duration: 3600, // 1 час
             status: .completed,
+            createdBy: "teacher_2", // ID преподавателя программирования
             completedAt: Calendar.current.date(byAdding: .day, value: -10, to: Date()),
             score: 7,
             maxScore: 10

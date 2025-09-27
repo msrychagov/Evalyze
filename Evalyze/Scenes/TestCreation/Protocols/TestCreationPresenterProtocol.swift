@@ -16,6 +16,7 @@ protocol TestCreationPresenterProtocol: AnyObject {
     func didSelectGroup(_ group: String)
     func didSelectQuestion(_ question: Question)
     func didDeselectQuestion(_ question: Question)
+    func didUpdateSelectedQuestions(_ questions: [Question])
     func didUpdateTitle(_ title: String)
     func didUpdateDescription(_ description: String)
     func didUpdateDuration(_ duration: TimeInterval)

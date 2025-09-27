@@ -96,22 +96,39 @@ final class GroupService: GroupServiceProtocol {
     }
     
     func getGroupsCreatedBy(teacherId: String, completion: @escaping (Result<[Group], GroupError>) -> Void) {
+        print("🔍 GroupService: Searching for groups created by teacher: '\(teacherId)'")
+        
+        // ВРЕМЕННО: получаем все активные группы для тестирования
+        // TODO: вернуть фильтрацию по teacherId после создания индекса
         db.collection(groupsCollection)
-            .whereField("createdBy", isEqualTo: teacherId)
             .whereField("isActive", isEqualTo: true)
-            .order(by: "createdAt", descending: true)
             .getDocuments { snapshot, error in
                 if let error = error {
+                    print("❌ GroupService: Error fetching groups: \(error.localizedDescription)")
                     completion(.failure(.networkError(error.localizedDescription)))
                     return
                 }
                 
-                let groups = snapshot?.documents.compactMap { document in
-                    Group.from(dictionary: document.data(), documentId: document.documentID)
+                print("📄 GroupService: Found \(snapshot?.documents.count ?? 0) documents")
+                
+                let groups: [Group] = snapshot?.documents.compactMap { document -> Group? in
+                    let group = Group.from(dictionary: document.data(), documentId: document.documentID)
+                    if let group = group {
+                        print("  ✅ Group: '\(group.name)' (createdBy: '\(group.createdBy)')")
+                    } else {
+                        print("  ❌ Failed to parse document: \(document.documentID)")
+                    }
+                    return group
                 } ?? []
                 
-                print("👨‍🏫 Loaded \(groups.count) groups for teacher: \(teacherId)")
-                completion(.success(groups))
+                // Фильтруем группы по teacherId на клиенте
+                let teacherGroups = groups.filter { $0.createdBy == teacherId }
+                
+                // Сортируем группы по дате создания (новые сначала)
+                let sortedGroups = teacherGroups.sorted { $0.createdAt > $1.createdAt }
+                
+                print("👨‍🏫 Filtered \(teacherGroups.count) groups from \(groups.count) total for teacher: \(teacherId)")
+                completion(.success(sortedGroups))
             }
     }
     

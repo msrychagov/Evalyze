@@ -19,11 +19,13 @@ final class TestsListViewController: UIViewController {
     // MARK: Properties
     private var tests: [Test] = []
     private let testStatus: TestStatus
+    private let testService: TestServiceProtocol
     weak var delegate: TestsListViewControllerDelegate?
     
     // MARK: Initialization
-    init(testStatus: TestStatus) {
+    init(testStatus: TestStatus, testService: TestServiceProtocol = TestService()) {
         self.testStatus = testStatus
+        self.testService = testService
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -73,13 +75,74 @@ final class TestsListViewController: UIViewController {
     }
     
     private func loadTests() {
-        tests = testStatus == .upcoming ? Test.mockUpcomingTests : Test.mockCompletedTests
+        print("📋 Loading tests with status: \(testStatus)")
+        
+        guard let currentUser = UserManager.shared.getCurrentUser() else {
+            print("❌ No current user found")
+            self.tests = []
+            self.updateUI()
+            return
+        }
+        
+        testService.getAllTests { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let allTests):
+                    print("✅ Loaded \(allTests.count) tests from Firebase")
+                    self?.filterAndDisplayTests(allTests, for: currentUser)
+                case .failure(let error):
+                    print("❌ Failed to load tests: \(error.localizedDescription)")
+                    // Fallback to mock data for now
+                    self?.loadMockTests(for: currentUser)
+                }
+            }
+        }
+    }
+    
+    private func filterAndDisplayTests(_ allTests: [Test], for user: User) {
+        // Фильтруем по статусу
+        let statusFilteredTests = allTests.filter { $0.status == testStatus }
+        
+        // Фильтруем по роли пользователя
+        switch user.role {
+        case .student:
+            // Студенты видят все доступные тесты
+            tests = statusFilteredTests
+        case .teacher:
+            // Преподаватели видят только тесты, которые они создали
+            tests = statusFilteredTests.filter { $0.createdBy == user.id }
+        }
+        
+        print("📝 Filtered to \(tests.count) tests for \(user.role)")
+        updateUI()
+    }
+    
+    private func loadMockTests(for user: User) {
+        print("🔄 Falling back to mock data")
+        let allTests = testStatus == .upcoming ? Test.mockUpcomingTests : Test.mockCompletedTests
+        
+        switch user.role {
+        case .student:
+            tests = allTests
+        case .teacher:
+            tests = allTests.filter { $0.createdBy == user.id }
+        }
+        
+        updateUI()
+    }
+    
+    private func updateUI() {
         emptyStateLabel.isHidden = !tests.isEmpty
         
         // Анимированное обновление таблицы
         UIView.transition(with: tableView, duration: 0.3, options: .transitionCrossDissolve) {
             self.tableView.reloadData()
         }
+    }
+    
+    // MARK: Public Methods
+    func refreshTests() {
+        loadTests()
     }
 }
 

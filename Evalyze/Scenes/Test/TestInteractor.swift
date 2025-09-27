@@ -46,6 +46,7 @@ final class TestInteractor: TestInteractorInputProtocol {
             questions: questions,
             duration: 3600,
             status: .upcoming,
+            createdBy: "teacher_1", // ID преподавателя
             createdAt: Date(),
             dueDate: nil,
             completedAt: nil,
