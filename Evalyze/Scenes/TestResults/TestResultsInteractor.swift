@@ -13,8 +13,8 @@ final class TestResultsInteractor: TestResultsInteractorInputProtocol {
     // Mock пользователь - можно изменить на .student для тестирования
     private let currentUser: User = User(
         id: "mock_user_id",
-        name: "Михаил Рычагов",
         email: "mikhail@example.com",
+        fullName: "Михаил Рычагов",
         role: .teacher, // Измените на .student для тестирования режима студента
         groups: ["БПИНЖ2383"],
         createdAt: Date()

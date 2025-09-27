@@ -46,7 +46,7 @@ final class TestResultsViewController: UIViewController, TestResultsViewProtocol
     
     private func updateNavigationTitle() {
         if let studentResult = studentResult {
-            title = "\(studentResult.student.name) - Результаты"
+            title = "\(studentResult.student.fullName) - Результаты"
         } else {
             title = "Результаты теста"
         }

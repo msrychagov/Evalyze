@@ -11,15 +11,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow()
         window.windowScene = windowScene
-        let dashboardVC = DashboardViewController()
-        let navigationController = UINavigationController(rootViewController: dashboardVC)
-        window.rootViewController = navigationController
+        
+        // Проверяем, есть ли сохраненный пользователь в UserDefaults
+        if let savedUser = UserManager.shared.getCurrentUser() {
+            print("Found saved user: \(savedUser.fullName) - showing dashboard")
+            // Показываем dashboard, если пользователь уже залогинен
+            let dashboardVC = DashboardViewController()
+            let navigationController = UINavigationController(rootViewController: dashboardVC)
+            window.rootViewController = navigationController
+        } else {
+            print("No saved user found - showing authentication")
+            // Показываем экран аутентификации
+            let authViewController = AuthenticationAssembly.createModule()
+            window.rootViewController = authViewController
+        }
+        
         self.window = window
         window.makeKeyAndVisible()
     }
@@ -57,7 +66,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
-
-
 }
-

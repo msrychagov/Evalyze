@@ -31,7 +31,7 @@ final class StudentResultTableViewCell: UITableViewCell {
     
     // MARK: Public Methods
     func configure(with studentResult: StudentTestResult) {
-        nameLabel.text = studentResult.student.name
+        nameLabel.text = studentResult.student.fullName
         scoreLabel.text = "\(studentResult.score)/\(studentResult.maxScore)"
         gradeLabel.text = studentResult.grade
         gradeLabel.textColor = getGradeColor(for: studentResult.score)
