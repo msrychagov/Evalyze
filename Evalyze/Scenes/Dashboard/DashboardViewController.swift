@@ -23,7 +23,7 @@ final class DashboardViewController: UIViewController {
         id: "mock_user_id",
         name: "Михаил Рычагов",
         email: "mikhail@example.com",
-        role: .student,
+        role: .teacher,
         groups: ["БПИНЖ2383"],
         createdAt: Date()
     )
@@ -179,13 +179,32 @@ extension DashboardViewController: CustomSegmentedControlDelegate {
 extension DashboardViewController: TestsListViewControllerDelegate {
     func didSelectTest(_ test: Test) {
         if test.status == .completed {
-            // Переход к результатам теста
-            let testResultsVC = TestResultsAssembly.createModule(with: test)
-            navigationController?.pushViewController(testResultsVC, animated: true)
+            // Проверяем роль пользователя
+            if currentUser.isTeacher {
+                // Для преподавателя: переход к списку студентов
+                let studentsListVC = TestResultsRouter.createStudentsListModule(with: test)
+                if let studentsListVC = studentsListVC as? StudentsListViewController {
+                    studentsListVC.delegate = self
+                }
+                navigationController?.pushViewController(studentsListVC, animated: true)
+            } else {
+                // Для студента: переход к результатам теста
+                let testResultsVC = TestResultsAssembly.createModule(with: test)
+                navigationController?.pushViewController(testResultsVC, animated: true)
+            }
         } else {
             // Переход к началу теста
             print("Starting test: \(test.title)")
             // TODO: Navigate to test start
         }
+    }
+}
+
+// MARK: - StudentsListViewControllerDelegate
+extension DashboardViewController: StudentsListViewControllerDelegate {
+    func didSelectStudent(_ studentResult: StudentTestResult) {
+        // Переход к результатам теста для выбранного студента
+        let studentTestResultsVC = TestResultsRouter.createStudentTestResultsModule(with: studentResult)
+        navigationController?.pushViewController(studentTestResultsVC, animated: true)
     }
 }

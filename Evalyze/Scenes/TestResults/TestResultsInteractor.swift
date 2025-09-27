@@ -15,10 +15,12 @@ final class TestResultsInteractor: TestResultsInteractorInputProtocol {
         id: "mock_user_id",
         name: "Михаил Рычагов",
         email: "mikhail@example.com",
-        role: .student, // Измените на .student для тестирования режима студента
+        role: .teacher, // Измените на .student для тестирования режима студента
         groups: ["БПИНЖ2383"],
         createdAt: Date()
     )
+    
+    private var studentResult: StudentTestResult?
     
     func fetchTestResults(for testId: String) {
         // Simulate network delay
@@ -32,6 +34,16 @@ final class TestResultsInteractor: TestResultsInteractorInputProtocol {
             
             let results = QuestionResult.mockResults(for: test)
             self.presenter?.didFetchTestResults(results)
+        }
+    }
+    
+    func fetchStudentTestResults(for studentResult: StudentTestResult) {
+        self.studentResult = studentResult
+        
+        // Simulate network delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            // Возвращаем результаты конкретного студента
+            self.presenter?.didFetchTestResults(studentResult.questionResults)
         }
     }
     

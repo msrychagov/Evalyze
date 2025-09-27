@@ -13,14 +13,24 @@ final class TestResultsPresenter: TestResultsPresenterProtocol, TestResultsInter
     var router: TestResultsRouterProtocol?
     
     private let test: Test
+    private var studentResult: StudentTestResult?
     
     init(test: Test) {
         self.test = test
     }
     
+    init(studentResult: StudentTestResult) {
+        self.test = studentResult.test
+        self.studentResult = studentResult
+    }
+    
     func viewDidLoad() {
         view?.showLoading()
-        interactor?.fetchTestResults(for: test.id)
+        if let studentResult = studentResult {
+            interactor?.fetchStudentTestResults(for: studentResult)
+        } else {
+            interactor?.fetchTestResults(for: test.id)
+        }
     }
     
     func didSelectQuestion(at index: Int) {

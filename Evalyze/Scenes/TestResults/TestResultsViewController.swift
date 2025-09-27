@@ -18,6 +18,7 @@ final class TestResultsViewController: UIViewController, TestResultsViewProtocol
     private var questionResults: [QuestionResult] = []
     private var expandedCells: Set<Int> = []
     private var isTeacherMode: Bool = false
+    private var studentResult: StudentTestResult?
     
     // MARK: Lifecycle
     override func viewDidLoad() {
@@ -36,6 +37,19 @@ final class TestResultsViewController: UIViewController, TestResultsViewProtocol
         }
         
         tableView.reloadData()
+    }
+    
+    func setStudentResult(_ studentResult: StudentTestResult) {
+        self.studentResult = studentResult
+        updateNavigationTitle()
+    }
+    
+    private func updateNavigationTitle() {
+        if let studentResult = studentResult {
+            title = "\(studentResult.student.name) - Результаты"
+        } else {
+            title = "Результаты теста"
+        }
     }
     
     func showError(_ message: String) {
@@ -63,7 +77,7 @@ final class TestResultsViewController: UIViewController, TestResultsViewProtocol
     }
     
     private func setupNavigationBar() {
-        title = "Результаты теста"
+        updateNavigationTitle()
         navigationController?.navigationBar.prefersLargeTitles = false
         
         let backButton = UIBarButtonItem(

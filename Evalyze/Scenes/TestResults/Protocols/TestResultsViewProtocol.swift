@@ -11,6 +11,7 @@ protocol TestResultsViewProtocol: AnyObject {
     var presenter: TestResultsPresenterProtocol? { get set }
     
     func showTestResults(_ results: [QuestionResult])
+    func setStudentResult(_ studentResult: StudentTestResult)
     func showError(_ message: String)
     func showLoading()
     func hideLoading()
