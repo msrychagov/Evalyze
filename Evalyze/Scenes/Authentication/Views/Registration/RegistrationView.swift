@@ -327,6 +327,7 @@ final class RegistrationView: UIView {
     }
     
     private final func configureGroupElements() {
+        // Настройка элементов для студентов
         self.addSubview(groupButton)
         groupButton.pinTop(to: roleSwitch.bottomAnchor, 25)
         groupButton.pinHorizontal(to: self)
@@ -350,17 +351,14 @@ final class RegistrationView: UIView {
         addGroupButton.addTarget(self, action: #selector(addGroupButtonTapped), for: .touchUpInside)
     }
     
-    private var registrationButtonTopConstraint: NSLayoutConstraint?
-    
     private final func configureRegistrationButton() {
         self.addSubview(registrationButton)
         
+        // Кнопка будет привязана к нижнему элементу в зависимости от роли
+        updateRegistrationButtonConstraints()
         registrationButton.pinHorizontal(to: self)
         registrationButton.setHeight(50)
         registrationButton.pinBottom(to: self, 20)
-        
-        registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: groupButton.bottomAnchor, constant: 35)
-        registrationButtonTopConstraint?.isActive = true
         
         registrationButton.addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
         registrationButton.addTarget(self, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
@@ -368,15 +366,14 @@ final class RegistrationView: UIView {
     }
     
     private func updateRegistrationButtonConstraints() {
-        registrationButtonTopConstraint?.isActive = false
+        registrationButton.removeFromSuperview()
+        self.addSubview(registrationButton)
         
-        if roleSwitch.selectedSegmentIndex == 0 {
-            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: groupButton.bottomAnchor, constant: 35)
-        } else {
-            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: addGroupButton.bottomAnchor, constant: 35)
+        if roleSwitch.selectedSegmentIndex == 0 { // Студент
+            registrationButton.pinTop(to: groupButton.bottomAnchor, 35)
+        } else { // Преподаватель
+            registrationButton.pinTop(to: addGroupButton.bottomAnchor, 35)
         }
-        
-        registrationButtonTopConstraint?.isActive = true
     }
     
     @objc private func buttonTouchDown() {
@@ -387,16 +384,15 @@ final class RegistrationView: UIView {
     }
     
     @objc private func roleSwitchChanged() {
-        if roleSwitch.selectedSegmentIndex == 0 {
-            showStudentElements()
-            updateEmailPlaceholder(for: .student)
-        } else {
-            showTeacherElements()
-            updateEmailPlaceholder(for: .teacher)
-        }
-        updateRegistrationButtonConstraints()
-        
         UIView.animate(withDuration: 0.3) {
+            if self.roleSwitch.selectedSegmentIndex == 0 { // Студент
+                self.showStudentElements()
+                self.updateEmailPlaceholder(for: .student)
+            } else { // Преподаватель
+                self.showTeacherElements()
+                self.updateEmailPlaceholder(for: .teacher)
+            }
+            self.updateRegistrationButtonConstraints()
             self.layoutIfNeeded()
         }
     }
@@ -476,24 +472,27 @@ final class RegistrationView: UIView {
     @objc private func addGroupButtonTapped() {
         guard let groupText = createGroupField.text, !groupText.isEmpty else { return }
         
-        let trimmedGroupName = groupText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedGroupName.isEmpty else { return }
+        // Разбиваем по запятым и очищаем от пробелов
+        let newGroups = groupText.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         
-        let groupExists = availableGroups.contains { $0.name.uppercased() == trimmedGroupName.uppercased() } ||
-                         createdGroups.contains { $0.uppercased() == trimmedGroupName.uppercased() }
-        
-        if groupExists {
-            showGroupExistsAlert(groupName: trimmedGroupName)
-            return
+        // Проверяем каждую группу на существование
+        for trimmedGroupName in newGroups {
+            let groupExists = availableGroups.contains { $0.name.uppercased() == trimmedGroupName.uppercased() } ||
+                             createdGroups.contains { $0.uppercased() == trimmedGroupName.uppercased() }
+            
+            if groupExists {
+                showGroupExistsAlert(groupName: trimmedGroupName)
+                return
+            }
+            
+            createdGroups.append(trimmedGroupName)
+            onCreateGroup?(trimmedGroupName)
         }
         
-        createdGroups.append(trimmedGroupName)
         createGroupField.text = ""
-        
-        onCreateGroup?(trimmedGroupName)
         updateCreateGroupPlaceholder()
         
-        print("Группа добавлена локально: \(trimmedGroupName)")
+        print("Группы добавлены локально: \(newGroups)")
         print("Всего групп для создания: \(createdGroups)")
     }
     
@@ -557,8 +556,9 @@ final class RegistrationView: UIView {
             if let selectedGroup = groupButton.titleLabel?.text, selectedGroup != "Выберите группу" {
                 groups = [selectedGroup]
             }
-        } else {
+        } else { // Преподаватель
             groups = createdGroups
+            // Если есть текст в поле, добавляем его тоже
             if let fieldText = createGroupField.text, !fieldText.isEmpty {
                 let additionalGroups = fieldText.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
                 groups.append(contentsOf: additionalGroups)
@@ -577,7 +577,7 @@ extension RegistrationView: UITextFieldDelegate {
         } else if textField == emailField {
             self.passwordField.becomeFirstResponder()
         } else if textField == passwordField {
-            if roleSwitch.selectedSegmentIndex == 1 {
+            if roleSwitch.selectedSegmentIndex == 1 { // Преподаватель
                 self.createGroupField.becomeFirstResponder()
             } else {
                 textField.resignFirstResponder()
