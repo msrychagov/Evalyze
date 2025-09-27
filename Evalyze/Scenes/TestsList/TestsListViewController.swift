@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol TestsListViewControllerDelegate: AnyObject {
+    func didSelectTest(_ test: Test)
+}
+
 final class TestsListViewController: UIViewController {
     // MARK: UI Properties
     private let tableView: UITableView = UITableView()
@@ -15,6 +19,7 @@ final class TestsListViewController: UIViewController {
     // MARK: Properties
     private var tests: [Test] = []
     private let testStatus: TestStatus
+    weak var delegate: TestsListViewControllerDelegate?
     
     // MARK: Initialization
     init(testStatus: TestStatus) {
@@ -70,7 +75,11 @@ final class TestsListViewController: UIViewController {
     private func loadTests() {
         tests = testStatus == .upcoming ? Test.mockUpcomingTests : Test.mockCompletedTests
         emptyStateLabel.isHidden = !tests.isEmpty
-        tableView.reloadData()
+        
+        // Анимированное обновление таблицы
+        UIView.transition(with: tableView, duration: 0.3, options: .transitionCrossDissolve) {
+            self.tableView.reloadData()
+        }
     }
 }
 
@@ -87,6 +96,16 @@ extension TestsListViewController: UITableViewDataSource {
         
         let test = tests[indexPath.row]
         cell.configure(with: test)
+        
+        // Анимация появления ячейки
+        cell.alpha = 0
+        cell.transform = CGAffineTransform(translationX: 0, y: 20)
+        
+        UIView.animate(withDuration: 0.5, delay: Double(indexPath.row) * 0.1, options: .curveEaseOut) {
+            cell.alpha = 1
+            cell.transform = .identity
+        }
+        
         return cell
     }
 }
@@ -95,9 +114,20 @@ extension TestsListViewController: UITableViewDataSource {
 extension TestsListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        // Анимация нажатия на ячейку
+        if let cell = tableView.cellForRow(at: indexPath) {
+            UIView.animate(withDuration: 0.1, animations: {
+                cell.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            }) { _ in
+                UIView.animate(withDuration: 0.1) {
+                    cell.transform = .identity
+                }
+            }
+        }
+        
         let test = tests[indexPath.row]
-        print("Selected test: \(test.title)")
-        // TODO: Navigate to test details or start test
+        delegate?.didSelectTest(test)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

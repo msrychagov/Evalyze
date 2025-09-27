@@ -23,7 +23,7 @@ final class DashboardViewController: UIViewController {
         id: "mock_user_id",
         name: "Михаил Рычагов",
         email: "mikhail@example.com",
-        role: .teacher,
+        role: .student,
         groups: ["БПИНЖ2383"],
         createdAt: Date()
     )
@@ -123,13 +123,28 @@ final class DashboardViewController: UIViewController {
     private func showTestsList(for status: TestStatus) {
         // Remove current tests list if exists
         if let currentVC = currentTestsListViewController {
-            currentVC.willMove(toParent: nil)
-            currentVC.view.removeFromSuperview()
-            currentVC.removeFromParent()
+            // Анимация исчезновения старого контроллера
+            UIView.animate(withDuration: 0.3, animations: {
+                currentVC.view.alpha = 0
+                currentVC.view.transform = CGAffineTransform(translationX: -20, y: 0)
+            }) { _ in
+                currentVC.willMove(toParent: nil)
+                currentVC.view.removeFromSuperview()
+                currentVC.removeFromParent()
+                
+                // Создаем новый контроллер после удаления старого
+                self.createNewTestsList(status: status)
+            }
+        } else {
+            // Если нет текущего контроллера, создаем новый сразу
+            createNewTestsList(status: status)
         }
-        
+    }
+    
+    private func createNewTestsList(status: TestStatus) {
         // Create new tests list
         let testsListVC = TestsListViewController(testStatus: status)
+        testsListVC.delegate = self
         currentTestsListViewController = testsListVC
         
         // Add as child view controller
@@ -138,6 +153,15 @@ final class DashboardViewController: UIViewController {
         testsListVC.view.translatesAutoresizingMaskIntoConstraints = false
         testsListVC.view.pin(to: containerView)
         testsListVC.didMove(toParent: self)
+        
+        // Анимация появления нового контроллера
+        testsListVC.view.alpha = 0
+        testsListVC.view.transform = CGAffineTransform(translationX: 20, y: 0)
+        
+        UIView.animate(withDuration: 0.3) {
+            testsListVC.view.alpha = 1
+            testsListVC.view.transform = .identity
+        }
     }
 }
 
@@ -148,5 +172,20 @@ extension DashboardViewController: CustomSegmentedControlDelegate {
         
         let testStatus: TestStatus = index == 0 ? .upcoming : .completed
         showTestsList(for: testStatus)
+    }
+}
+
+// MARK: - TestsListViewControllerDelegate
+extension DashboardViewController: TestsListViewControllerDelegate {
+    func didSelectTest(_ test: Test) {
+        if test.status == .completed {
+            // Переход к результатам теста
+            let testResultsVC = TestResultsAssembly.createModule(with: test)
+            navigationController?.pushViewController(testResultsVC, animated: true)
+        } else {
+            // Переход к началу теста
+            print("Starting test: \(test.title)")
+            // TODO: Navigate to test start
+        }
     }
 }

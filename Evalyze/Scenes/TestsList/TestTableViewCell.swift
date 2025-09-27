@@ -52,13 +52,17 @@ final class TestTableViewCell: UITableViewCell {
             
         case .completed:
             statusLabel.text = "Завершен"
-            statusLabel.textColor = .greenAccent
             
             if let score = test.score {
                 scoreLabel.text = "\(score)/\(test.maxScore)"
+                scoreLabel.textColor = getScoreColor(for: score)
                 scoreLabel.isHidden = false
+                
+                // Цвет статуса зависит от оценки
+                statusLabel.textColor = getScoreColor(for: score)
             } else {
                 scoreLabel.isHidden = true
+                statusLabel.textColor = .greenAccent // По умолчанию зеленый
             }
             
             if let completedAt = test.completedAt {
@@ -185,5 +189,20 @@ final class TestTableViewCell: UITableViewCell {
         chevronImageView.pinRight(to: containerView, 16)
         chevronImageView.setWidth(12)
         chevronImageView.setHeight(12)
+    }
+    
+    private func getScoreColor(for score: Int) -> UIColor {
+        switch score {
+        case 0...3:
+            return .redAccent      // Красный для оценок 0-3
+        case 4...5:
+            return .orangeAccent   // Оранжевый для оценок 4-5
+        case 6...7:
+            return .yellowAccent   // Желтый для оценок 6-7
+        case 8...10:
+            return .greenAccent    // Зеленый для оценок 8-10
+        default:
+            return .secondaryTextApp
+        }
     }
 }
