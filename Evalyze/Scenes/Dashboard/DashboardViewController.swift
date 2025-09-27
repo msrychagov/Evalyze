@@ -18,15 +18,10 @@ final class DashboardViewController: UIViewController {
     // MARK: Child View Controllers
     private var currentTestsListViewController: TestsListViewController?
     
-    // MARK: Mock User (temporary)
-    private let currentUser: User = User(
-        id: "mock_user_id",
-        email: "mikhail@example.com",
-        fullName: "Михаил Рычагов",
-        role: .teacher,
-        groups: ["БПИНЖ2383"],
-        createdAt: Date()
-    )
+    // MARK: Current User
+    private var currentUser: User? {
+        return UserManager.shared.getCurrentUser()
+    }
     
     // MARK: ViewDidLoad
     override func viewDidLoad() {
@@ -40,7 +35,7 @@ final class DashboardViewController: UIViewController {
         configureProfileHeaderView()
         configureWorksLabel()
         configureSegmentedControl()
-        if currentUser.isTeacher {
+        if currentUser?.isTeacher == true {
             configureAddButton()
         }
         configureContainerView()
@@ -48,15 +43,35 @@ final class DashboardViewController: UIViewController {
     }
     
     private func configureProfileHeaderView() {
-        let title = currentUser.isTeacher ? "Преподаватель" : "Студент"
-        let group = currentUser.isStudent ? currentUser.studentGroup ?? "" : currentUser.teacherGroups.first ?? ""
+        guard let user = currentUser else {
+            navigateToAuthentication()
+            return
+        }
         
-        profileHeaderView.configure(viewModel: .init(title: title, name: currentUser.fullName, group: group))
+        let title = user.isTeacher ? "Преподаватель" : "Студент"
+        let group = user.isStudent ? user.studentGroup ?? "" : user.teacherGroups.first ?? ""
+        
+        profileHeaderView.configure(viewModel: .init(title: title, name: user.fullName, group: group))
+        profileHeaderView.delegate = self
         view.addSubview(profileHeaderView)
         profileHeaderView.translatesAutoresizingMaskIntoConstraints = false
         profileHeaderView.pinHorizontal(to: view, 10)
         profileHeaderView.pinTop(to: view.safeAreaLayoutGuide.topAnchor, 20)
-        profileHeaderView.setHeight(120) // Увеличил высоту
+        profileHeaderView.setHeight(120)
+    }
+    
+    private func navigateToAuthentication() {
+        DispatchQueue.main.async {
+            let authViewController = AuthenticationAssembly.createModule()
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                
+                UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
+                    window.rootViewController = authViewController
+                }, completion: nil)
+            }
+        }
     }
     
     private func configureWorksLabel() {
@@ -87,7 +102,7 @@ final class DashboardViewController: UIViewController {
         containerView.pinHorizontal(to: view)
         containerView.pinTop(to: segmentedControl.bottomAnchor, 16)
         
-        if currentUser.isTeacher {
+        if currentUser?.isTeacher == true {
             containerView.pinBottom(to: addButton.topAnchor, 16)
         } else {
             containerView.pinBottom(to: view.safeAreaLayoutGuide.bottomAnchor, 16)
@@ -181,7 +196,7 @@ extension DashboardViewController: TestsListViewControllerDelegate {
     func didSelectTest(_ test: Test) {
         if test.status == .completed {
             // Проверяем роль пользователя
-            if currentUser.isTeacher {
+            if currentUser?.isTeacher == true {
                 // Для преподавателя: переход к списку студентов
                 let studentsListVC = TestResultsRouter.createStudentsListModule(with: test)
                 if let studentsListVC = studentsListVC as? StudentsListViewController {
@@ -207,5 +222,46 @@ extension DashboardViewController: StudentsListViewControllerDelegate {
         // Переход к результатам теста для выбранного студента
         let studentTestResultsVC = TestResultsRouter.createStudentTestResultsModule(with: studentResult)
         navigationController?.pushViewController(studentTestResultsVC, animated: true)
+    }
+}
+
+// MARK: - ProfileHeaderViewDelegate
+extension DashboardViewController: ProfileHeaderViewDelegate {
+    func didTapLogoutButton() {
+        let alert = UIAlertController(
+            title: "Выход",
+            message: "Вы уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Выйти", style: .destructive) { [weak self] _ in
+            self?.performLogout()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func performLogout() {
+        // Используем AuthenticationService для выхода из Firebase
+        let authService = AuthenticationService()
+        authService.logout { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    // Очищаем пользователя из UserManager
+                    UserManager.shared.clearUser()
+                    
+                    // Переходим на экран авторизации
+                    self?.navigateToAuthentication()
+                    
+                case .failure(let error):
+                    // Показываем ошибку, но всё равно очищаем локальные данные
+                    print("Logout error: \(error.localizedDescription)")
+                    UserManager.shared.clearUser()
+                    self?.navigateToAuthentication()
+                }
+            }
+        }
     }
 }

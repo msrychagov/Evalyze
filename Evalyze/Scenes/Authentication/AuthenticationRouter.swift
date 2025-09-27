@@ -37,15 +37,12 @@ extension AuthenticationRouter: AuthenticationRouterProtocol {
     
     func navigateToProfile() {
         DispatchQueue.main.async {
-            // Создаем dashboard экран
             let dashboardVC = DashboardViewController()
             let navigationController = UINavigationController(rootViewController: dashboardVC)
             
-            // Находим window scene и меняем root view controller
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let window = windowScene.windows.first {
                 
-                // Анимация перехода
                 UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: {
                     window.rootViewController = navigationController
                 }, completion: nil)

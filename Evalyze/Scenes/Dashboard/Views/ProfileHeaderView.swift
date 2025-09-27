@@ -7,12 +7,20 @@
 
 import UIKit
 
+protocol ProfileHeaderViewDelegate: AnyObject {
+    func didTapLogoutButton()
+}
+
 final class ProfileHeaderView: UIView {
     // MARK: UI Properties
     private let stack: UIStackView = UIStackView()
     private let titleLabel: UILabel = UILabel()
     private let nameLabel: UILabel = UILabel()
     private let groupLabel: UILabel = UILabel()
+    private let logoutButton: UIButton = UIButton(type: .system)
+    
+    // MARK: Delegate
+    weak var delegate: ProfileHeaderViewDelegate?
     
     // MARK: Lifecycle
     override init(frame: CGRect) {
@@ -39,6 +47,7 @@ final class ProfileHeaderView: UIView {
         configureTitleLabel()
         configureNameLabel()
         configureGroupView()
+        configureLogoutButton()
         configureStack()
     }
     
@@ -54,20 +63,45 @@ final class ProfileHeaderView: UIView {
     }
     
     private func configureGroupView() {
-        groupLabel.setCustomFont(.sansThin, size: 12)
+        groupLabel.setCustomFont(.sansRegular, size: 12)
         groupLabel.textColor = .secondaryTextApp
+    }
+    
+    private func configureLogoutButton() {
+        logoutButton.setTitle("Выйти", for: .normal)
+        logoutButton.setTitleColor(.red, for: .normal)
+        logoutButton.titleLabel?.setCustomFont(.sansRegular, size: 14)
+        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func logoutButtonTapped() {
+        delegate?.didTapLogoutButton()
     }
     
     private func configureStack() {
         stack.axis = .vertical
-        stack.spacing = 8 // Уменьшил отступы между лейблами
+        stack.spacing = 8
         stack.alignment = .leading
         for label in [titleLabel, nameLabel, groupLabel] {
             stack.addArrangedSubview(label)
         }
-        addSubview(stack)
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.pin(to: self, 16) // 16pt padding from all sides
         
+        addSubview(stack)
+        addSubview(logoutButton)
+        
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        logoutButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Stack constraints
+        stack.pinTop(to: self, 16)
+        stack.pinBottom(to: self, 16)
+        stack.pinLeft(to: self, 16)
+        
+        // Logout button constraints  
+        logoutButton.pinTop(to: self, 16)
+        logoutButton.pinRight(to: self, 16)
+        
+        // Constraint between stack and button
+        stack.trailingAnchor.constraint(equalTo: logoutButton.leadingAnchor, constant: -16).isActive = true
     }
 }
