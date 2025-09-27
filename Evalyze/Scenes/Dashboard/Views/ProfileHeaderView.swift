@@ -44,18 +44,18 @@ final class ProfileHeaderView: UIView {
     
     private func configureTitleLabel() {
         titleLabel.setCustomFont(.sansBold, size: 18)
-        titleLabel.textColor = .mainTextColor
+        titleLabel.textColor = .mainTextApp
     }
     
     private func configureNameLabel() {
         nameLabel.setCustomFont(.sansBold, size: 24)
-        nameLabel.textColor = .mainTextColor
+        nameLabel.textColor = .mainTextApp
         
     }
     
     private func configureGroupView() {
         groupLabel.setCustomFont(.sansThin, size: 12)
-        groupLabel.textColor = .secondaryTextColor
+        groupLabel.textColor = .secondaryTextApp
     }
     
     private func configureStack() {

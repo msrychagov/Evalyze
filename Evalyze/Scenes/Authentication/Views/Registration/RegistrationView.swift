@@ -14,7 +14,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "ФИО"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -23,7 +23,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
@@ -40,7 +40,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "Иванов Иван Иванович",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -49,7 +49,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Email"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -75,7 +75,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "example@email.com",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -84,7 +84,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Пароль"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -93,7 +93,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = UIColor(hex: "#2C2C2E")
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
@@ -111,7 +111,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "password",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -153,16 +153,16 @@ final class RegistrationView: UIView {
         button.contentHorizontalAlignment = .left
         
         button.setTitle("Выберите группу", for: .normal)
-        button.setTitleColor(.secondaryTextColor, for: .normal)
+        button.setTitleColor(.secondaryTextApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansRegular, size: 16)
         
-        let arrowImage = UIImage(systemName: "chevron.down")?.withTintColor(.secondaryTextColor, renderingMode: .alwaysOriginal)
+        let arrowImage = UIImage(systemName: "chevron.down")?.withTintColor(.secondaryTextApp, renderingMode: .alwaysOriginal)
         button.setImage(arrowImage, for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         
         var config = UIButton.Configuration.plain()
         config.title = "Выберите группу"
-        config.baseForegroundColor = .secondaryTextColor
+        config.baseForegroundColor = .secondaryTextApp
         config.image = arrowImage
         config.imagePlacement = .trailing
         config.imagePadding = 10
@@ -181,7 +181,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Создайте группы"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         label.isHidden = true
         return label
@@ -191,7 +191,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         field.isHidden = true
         
         field.autocorrectionType = .no
@@ -209,7 +209,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "Введите названия групп через запятую",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -221,7 +221,7 @@ final class RegistrationView: UIView {
         button.isHidden = true
         
         button.setTitle("+ Добавить группу", for: .normal)
-        button.setTitleColor(.secondaryTextColor, for: .normal)
+        button.setTitleColor(.secondaryTextApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansRegular, size: 14)
         
         return button

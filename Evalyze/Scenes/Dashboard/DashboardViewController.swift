@@ -56,7 +56,7 @@ final class DashboardViewController: UIViewController {
     private func configureWorksLabel() {
         worksLabel.text = "Работы"
         worksLabel.setCustomFont(.sansBold, size: 20)
-        worksLabel.textColor = .mainTextColor
+        worksLabel.textColor = .mainTextApp
         worksLabel.textAlignment = .center
         view.addSubview(worksLabel)
         worksLabel.translatesAutoresizingMaskIntoConstraints = false

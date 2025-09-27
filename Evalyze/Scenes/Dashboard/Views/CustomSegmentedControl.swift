@@ -79,7 +79,7 @@ final class CustomSegmentedControl: UIView {
         for (index, segment) in segments.enumerated() {
             let button = UIButton(type: .custom)
             button.setTitle(segment, for: .normal)
-            button.setTitleColor(.secondaryTextColor, for: .normal)
+            button.setTitleColor(.secondaryTextApp, for: .normal)
             button.setTitleColor(.blueAccent, for: .selected)
             button.titleLabel?.setCustomFont(.sansRegular, size: 16)
             button.backgroundColor = .clear
