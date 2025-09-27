@@ -111,8 +111,9 @@ final class DashboardViewController: UIViewController {
     }
     
     @objc private func addButtonTapped() {
-        print("Add button tapped")
-        // TODO: Add action for teacher
+        let testCreationVC = TestCreationRouter.createModule()
+        let navigationController = UINavigationController(rootViewController: testCreationVC)
+        present(navigationController, animated: true)
     }
     
     // MARK: Tests List Management
