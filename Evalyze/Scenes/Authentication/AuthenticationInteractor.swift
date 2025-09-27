@@ -9,15 +9,11 @@ import Foundation
 import UIKit
 
 final class AuthenticationInteractor {
-    // MARK: - Properties
     weak var presenter: AuthenticationInteractorOutputProtocol?
     
-    // MARK: - Private Properties
     private let authService: AuthenticationServiceProtocol
     private let validationService: ValidationServiceProtocol
     private let groupService: GroupServiceProtocol
-    
-    // MARK: - Init
     init(
         authService: AuthenticationServiceProtocol = AuthenticationService(),
         validationService: ValidationServiceProtocol = ValidationService(),

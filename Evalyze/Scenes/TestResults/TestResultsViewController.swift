@@ -10,28 +10,32 @@ import UIKit
 final class TestResultsViewController: UIViewController, TestResultsViewProtocol {
     var presenter: TestResultsPresenterProtocol?
     
-    // MARK: UI Properties
     private let tableView: UITableView = UITableView()
     private let loadingView: UIActivityIndicatorView = UIActivityIndicatorView(style: .large)
     
-    // MARK: Properties
     private var questionResults: [QuestionResult] = []
     private var expandedCells: Set<Int> = []
     private var isTeacherMode: Bool = false
     private var studentResult: StudentTestResult?
     
-    // MARK: Lifecycle
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        print("🔧 TestResultsViewController init")
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("📱 TestResultsViewController viewDidLoad")
         setupUI()
         presenter?.viewDidLoad()
     }
     
-    // MARK: TestResultsViewProtocol
     func showTestResults(_ results: [QuestionResult]) {
         questionResults = results
         
-        // Получаем роль пользователя
         if let interactor = presenter?.interactor as? TestResultsInteractor {
             isTeacherMode = interactor.getCurrentUserRole() == .teacher
         }
@@ -55,7 +59,16 @@ final class TestResultsViewController: UIViewController, TestResultsViewProtocol
     func showError(_ message: String) {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        
+        // Проверяем что контроллер добавлен в иерархию перед показом алерта
+        if view.window != nil {
+            present(alert, animated: true)
+        } else {
+            // Если контроллер еще не добавлен, показываем алерт с задержкой
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.present(alert, animated: true)
+            }
+        }
     }
     
     func showLoading() {
@@ -102,7 +115,13 @@ final class TestResultsViewController: UIViewController, TestResultsViewProtocol
         
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.pin(to: view)
+        
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
     
     private func setupLoadingView() {

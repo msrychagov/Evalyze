@@ -36,6 +36,7 @@ final class TestRouter: TestRouterProtocol {
         testVC.presenter = presenter
         interactor.output = presenter
         interactor.setCurrentTest(test) // Устанавливаем тест для оценки
+        presenter.setCurrentTest(test) // Устанавливаем тест в presenter для сохранения статуса
         view.navigationController?.pushViewController(testVC, animated: true)
     }
 

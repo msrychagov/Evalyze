@@ -102,19 +102,11 @@ final class StudentsListViewController: UIViewController {
     }
     
     private func loadStudentResults() {
-        showLoading()
-        
-        // Simulate network delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.studentResults = StudentTestResult.mockResults(for: self.test)
-            self.hideLoading()
-            self.emptyStateLabel.isHidden = !self.studentResults.isEmpty
-            
-            // Анимированное обновление таблицы
-            UIView.transition(with: self.tableView, duration: 0.3, options: .transitionCrossDissolve) {
-                self.tableView.reloadData()
-            }
-        }
+        // TODO: Implement Firebase integration for student results
+        print("❌ Student results not implemented for Firebase yet")
+        self.studentResults = []
+        self.emptyStateLabel.isHidden = false
+        self.tableView.reloadData()
     }
     
     private func showLoading() {

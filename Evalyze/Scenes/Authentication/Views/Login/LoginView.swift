@@ -28,7 +28,7 @@ final class LoginView: UIView {
         field.autocapitalizationType = .none
         
         field.keyboardType = .emailAddress
-        field.textContentType = .emailAddress
+        field.textContentType = .none
         field.returnKeyType = .next
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
@@ -62,8 +62,9 @@ final class LoginView: UIView {
         field.spellCheckingType = .no
         field.autocapitalizationType = .none
         
-        field.isSecureTextEntry = true
-        field.textContentType = .password
+        field.isSecureTextEntry = false
+        field.textContentType = .none
+        field.passwordRules = nil
         field.returnKeyType = .done
         field.keyboardType = .asciiCapable
         

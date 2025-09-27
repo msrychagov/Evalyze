@@ -8,26 +8,26 @@
 import UIKit
 
 final class DashboardViewController: UIViewController {
-    // MARK: UI Properties
     private let profileHeaderView: ProfileHeaderView = ProfileHeaderView()
     private let worksLabel: UILabel = UILabel()
     private let segmentedControl: CustomSegmentedControl = CustomSegmentedControl()
     private let addButton: UIButton = UIButton(type: .system)
     private let containerView: UIView = UIView()
     
-    // MARK: Child View Controllers
     private var currentTestsListViewController: TestsListViewController?
     
-    // MARK: Current User
     private var currentUser: User? {
         return UserManager.shared.getCurrentUser()
     }
-    
-    // MARK: ViewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blackApp
         configureUI()
+        setupNotifications()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // MARK: Configure UI
@@ -180,8 +180,42 @@ final class DashboardViewController: UIViewController {
         }
     }
     
+    // MARK: Notifications
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(testCreated(_:)),
+            name: NSNotification.Name("TestCreated"),
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(testCompleted(_:)),
+            name: NSNotification.Name("TestCompleted"),
+            object: nil
+        )
+    }
+    
+    @objc private func testCreated(_ notification: Notification) {
+        print("📢 Received TestCreated notification - refreshing tests list")
+        // Обновляем список тестов с небольшой задержкой чтобы Firebase успел сохранить
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.refreshCurrentTestsList()
+        }
+    }
+    
+    @objc private func testCompleted(_ notification: Notification) {
+        print("📢 Received TestCompleted notification - refreshing tests list")
+        // Обновляем список тестов с небольшой задержкой чтобы Firebase успел обновить статус
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.refreshCurrentTestsList()
+        }
+    }
+    
     // MARK: Public Methods
     func refreshCurrentTestsList() {
+        print("🔄 Refreshing current tests list")
         currentTestsListViewController?.refreshTests()
     }
 }
@@ -225,9 +259,9 @@ extension DashboardViewController: TestsListViewControllerDelegate {
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                 present(alert, animated: true)
             } else {
-                // Студент может проходить тесты
-                let testIntroVC = TestRouter.assembleModule()
-                navigationController?.pushViewController(testIntroVC, animated: true)
+                // Студент может проходить тесты - передаем реальный тест
+                let router = TestRouter()
+                router.presentTest(from: self, test: test)
             }
         }
     }

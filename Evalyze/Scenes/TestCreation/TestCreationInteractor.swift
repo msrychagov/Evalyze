@@ -77,6 +77,7 @@ final class TestCreationInteractor: TestCreationInteractorInputProtocol {
             duration: testModel.duration,
             status: .upcoming,
             createdBy: currentUserId,
+            targetGroup: testModel.selectedGroup ?? "Без группы",
             createdAt: Date(),
             dueDate: testModel.startDate,
             completedAt: nil,

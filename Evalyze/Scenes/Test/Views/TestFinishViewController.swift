@@ -62,6 +62,24 @@ final class TestFinishViewController: UIViewController {
         tv.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         return tv
     }()
+    
+    private let backToMenuButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Вернуться в главное меню", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .systemRed
+        button.layer.cornerRadius = 12
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        
+        // Добавим тень для лучшей видимости
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 2)
+        button.layer.shadowOpacity = 0.3
+        button.layer.shadowRadius = 4
+        
+        button.addTarget(self, action: #selector(backToMenuButtonTapped), for: .touchUpInside)
+        return button
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,6 +91,7 @@ final class TestFinishViewController: UIViewController {
         view.backgroundColor = .blackApp
         
         view.addSubview(scrollView)
+        view.addSubview(backToMenuButton)
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(scoreLabel)
@@ -84,6 +103,7 @@ final class TestFinishViewController: UIViewController {
 
         // Constraints
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        backToMenuButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         scoreLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -95,7 +115,13 @@ final class TestFinishViewController: UIViewController {
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: backToMenuButton.topAnchor, constant: -20),
+            
+            // Back to menu button
+            backToMenuButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            backToMenuButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            backToMenuButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            backToMenuButton.heightAnchor.constraint(equalToConstant: 60),
             
             // Content view
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
@@ -164,5 +190,9 @@ final class TestFinishViewController: UIViewController {
         }
         
         answersTextView.text = lines.joined(separator: "\n")
+    }
+    
+    @objc private func backToMenuButtonTapped() {
+        navigationController?.popToRootViewController(animated: true)
     }
 }

@@ -29,7 +29,7 @@ final class RegistrationView: UIView {
         field.spellCheckingType = .no
         field.autocapitalizationType = .words
         
-        field.textContentType = .name
+        field.textContentType = .none
         field.keyboardType = .default
         field.returnKeyType = .next
         
@@ -65,7 +65,7 @@ final class RegistrationView: UIView {
         field.autocapitalizationType = .none
         
         field.keyboardType = .emailAddress
-        field.textContentType = .emailAddress
+        field.textContentType = .none
         field.returnKeyType = .next
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
@@ -99,8 +99,9 @@ final class RegistrationView: UIView {
         field.spellCheckingType = .no
         field.autocapitalizationType = .none
         
-        field.isSecureTextEntry = true
-        field.textContentType = .password
+        field.isSecureTextEntry = false
+        field.textContentType = .none
+        field.passwordRules = nil
         field.returnKeyType = .default
         field.keyboardType = .asciiCapable
         

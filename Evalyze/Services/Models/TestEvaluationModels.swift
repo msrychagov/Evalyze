@@ -42,15 +42,3 @@ struct TestEvaluationResponse: Codable {
         case feedback = "feedback"
     }
 }
-
-struct QuestionScore: Codable {
-    let questionId: Int
-    let score: Double
-    let feedback: String
-    
-    enum CodingKeys: String, CodingKey {
-        case questionId = "question_id"
-        case score = "score"
-        case feedback = "feedback"
-    }
-}

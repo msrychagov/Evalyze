@@ -9,6 +9,8 @@ protocol TestPresenterProtocol: AnyObject {
     func viewDidLoad()
     func startTest()
     func answerChanged(_ text: String)
+    func didAnswerQuestion(_ answer: String)
+    func setCurrentTest(_ test: Test)
     func nextTapped()
     func prevTapped()
     func finishTapped()

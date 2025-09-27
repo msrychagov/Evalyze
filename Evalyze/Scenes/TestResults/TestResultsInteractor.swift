@@ -16,19 +16,59 @@ final class TestResultsInteractor: TestResultsInteractorInputProtocol {
     }
     
     private var studentResult: StudentTestResult?
+    private let answerService: StudentTestAnswerServiceProtocol
+    
+    init() {
+        self.answerService = StudentTestAnswerService()
+    }
     
     func fetchTestResults(for testId: String) {
-        // Simulate network delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // Mock data - in real app this would come from API
-            let mockTest = Test.mockCompletedTests.first { $0.id == testId }
-            guard let test = mockTest else {
-                self.presenter?.didFailToFetchResults(NSError(domain: "TestNotFound", code: 404, userInfo: nil))
-                return
+        print("📊 Fetching test results for testId: \(testId)")
+        
+        guard let currentUser = currentUser else {
+            presenter?.didFailToFetchResults(NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Пользователь не авторизован"]))
+            return
+        }
+        
+        // Загружаем ответы студента из Firebase
+        answerService.getStudentAnswers(for: testId, studentId: currentUser.id) { [weak self] result in
+            switch result {
+            case .success(let studentAnswer):
+                // Загружаем тест чтобы получить вопросы
+                TestService().getAllTests { testResult in
+                    switch testResult {
+                    case .success(let tests):
+                        if let test = tests.first(where: { $0.id == testId }) {
+                            // Преобразуем ответы студента в QuestionResult
+                            let questionResults = studentAnswer.questionScores.compactMap { questionScore -> QuestionResult? in
+                                let answer = studentAnswer.answers[String(questionScore.questionId)] ?? "Ответ не предоставлен"
+                                
+                                // Находим соответствующий вопрос в тесте
+                                if let questionIndex = test.questions.firstIndex(where: { $0.intId == questionScore.questionId }) {
+                                    let question = test.questions[questionIndex]
+                                    return QuestionResult(
+                                        question: question,
+                                        studentAnswer: answer,
+                                        correctAnswer: "Правильный ответ не определен", // В будущем можно добавить правильные ответы
+                                        score: Int(questionScore.score),
+                                        maxScore: 10
+                                    )
+                                }
+                                return nil
+                            }
+                            
+                            self?.presenter?.didFetchTestResults(questionResults)
+                        } else {
+                            self?.presenter?.didFailToFetchResults(NSError(domain: "NotFound", code: 404, userInfo: [NSLocalizedDescriptionKey: "Тест не найден"]))
+                        }
+                    case .failure(let error):
+                        self?.presenter?.didFailToFetchResults(error)
+                    }
+                }
+            case .failure(let error):
+                print("❌ Failed to fetch student answers: \(error.localizedDescription)")
+                self?.presenter?.didFailToFetchResults(error)
             }
-            
-            let results = QuestionResult.mockResults(for: test)
-            self.presenter?.didFetchTestResults(results)
         }
     }
     

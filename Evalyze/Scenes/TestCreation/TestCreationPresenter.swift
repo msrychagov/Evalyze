@@ -111,6 +111,9 @@ final class TestCreationPresenter: TestCreationPresenterProtocol, TestCreationIn
     func didCreateTest(_ test: Test) {
         view?.hideLoading()
         view?.showSuccess("Тест успешно создан!")
+        
+        // Уведомляем дашборд о создании нового теста
+        NotificationCenter.default.post(name: NSNotification.Name("TestCreated"), object: test)
     }
     
     func didFailToCreateTest(_ error: Error) {

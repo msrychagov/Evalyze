@@ -10,7 +10,6 @@ import UIKit
 final class TestCreationViewController: UIViewController, TestCreationViewProtocol {
     var presenter: TestCreationPresenterProtocol?
     
-    // MARK: UI Properties
     private let scrollView: UIScrollView = UIScrollView()
     private let contentView: UIView = UIView()
     private let titleTextField: UITextField = UITextField()
@@ -24,12 +23,10 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     private let createButton: UIButton = UIButton(type: .system)
     private let loadingView: UIActivityIndicatorView = UIActivityIndicatorView(style: .large)
     
-    // MARK: Properties
     private var testModel = TestCreationModel()
     private var availableQuestions: [Question] = []
     private var availableGroups: [String] = []
     
-    // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()

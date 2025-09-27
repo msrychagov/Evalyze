@@ -8,12 +8,10 @@
 import Foundation
 
 final class AuthenticationPresenter {
-    // MARK: - VIPER Properties
     weak var view: AuthenticationViewProtocol?
     var interactor: AuthenticationInteractorProtocol?
     var router: AuthenticationRouterProtocol?
     
-    // MARK: - Private Properties
     private var currentAuthMode: AuthMode = .login
     private var selectedGroup: String?
     private var availableGroups: [Group] = []
@@ -24,7 +22,6 @@ final class AuthenticationPresenter {
     }
 }
 
-// MARK: - AuthenticationPresenterProtocol
 extension AuthenticationPresenter: AuthenticationPresenterProtocol {
     func viewDidLoad() {
         view?.switchToLogin()

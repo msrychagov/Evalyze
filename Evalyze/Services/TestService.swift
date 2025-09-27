@@ -29,6 +29,7 @@ protocol TestServiceProtocol {
     func getAllTests(completion: @escaping (Result<[Test], TestError>) -> Void)
     func getTestsCreatedBy(teacherId: String, completion: @escaping (Result<[Test], TestError>) -> Void)
     func updateTest(_ test: Test, completion: @escaping (Result<Test, TestError>) -> Void)
+    func markTestAsCompleted(testId: String, score: Int, completion: @escaping (Result<Void, TestError>) -> Void)
 }
 
 final class TestService: TestServiceProtocol {
@@ -45,6 +46,7 @@ final class TestService: TestServiceProtocol {
             "duration": test.duration,
             "status": test.status.rawValue,
             "createdBy": test.createdBy,
+            "targetGroup": test.targetGroup,
             "createdAt": FieldValue.serverTimestamp(),
             "dueDate": test.dueDate ?? NSNull(),
             "completedAt": test.completedAt ?? NSNull(),
@@ -111,20 +113,80 @@ final class TestService: TestServiceProtocol {
         completion(.failure(.unknownError))
     }
     
+    func markTestAsCompleted(testId: String, score: Int, completion: @escaping (Result<Void, TestError>) -> Void) {
+        print("✅ Marking test as completed: \(testId) with score: \(score)")
+        
+        let updateData: [String: Any] = [
+            "status": TestStatus.completed.rawValue,
+            "completedAt": FieldValue.serverTimestamp(),
+            "score": score
+        ]
+        
+        db.collection(testsCollection).document(testId).updateData(updateData) { error in
+            if let error = error {
+                print("❌ Failed to mark test as completed: \(error.localizedDescription)")
+                completion(.failure(.updateFailed(error.localizedDescription)))
+            } else {
+                print("✅ Test marked as completed successfully")
+                completion(.success(()))
+            }
+        }
+    }
+    
     // MARK: - Private Methods
     private func parseTestFromDocument(_ document: QueryDocumentSnapshot) -> Test? {
         let data = document.data()
         
-        guard let title = data["title"] as? String,
-              let description = data["description"] as? String,
-              let questionsData = data["questions"] as? [[String: Any]],
-              let duration = data["duration"] as? TimeInterval,
-              let statusString = data["status"] as? String,
-              let status = TestStatus(rawValue: statusString),
-              let createdBy = data["createdBy"] as? String,
-              let createdAtTimestamp = data["createdAt"] as? Timestamp,
-              let maxScore = data["maxScore"] as? Int else {
-            print("❌ Failed to parse test document: \(document.documentID)")
+        print("🔍 Parsing test document: \(document.documentID)")
+        print("📋 Document data keys: \(data.keys.sorted())")
+        
+        guard let title = data["title"] as? String else {
+            print("❌ Missing title in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let description = data["description"] as? String else {
+            print("❌ Missing description in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let questionsData = data["questions"] as? [[String: Any]] else {
+            print("❌ Missing questions in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let duration = data["duration"] as? TimeInterval else {
+            print("❌ Missing duration in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let statusString = data["status"] as? String else {
+            print("❌ Missing status in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let status = TestStatus(rawValue: statusString) else {
+            print("❌ Invalid status '\(statusString)' in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let createdBy = data["createdBy"] as? String else {
+            print("❌ Missing createdBy in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let targetGroup = data["targetGroup"] as? String else {
+            print("❌ Missing targetGroup in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let createdAtTimestamp = data["createdAt"] as? Timestamp else {
+            print("❌ Missing createdAt in document: \(document.documentID)")
+            return nil
+        }
+        
+        guard let maxScore = data["maxScore"] as? Int else {
+            print("❌ Missing maxScore in document: \(document.documentID)")
             return nil
         }
         
@@ -143,7 +205,7 @@ final class TestService: TestServiceProtocol {
         let completedAt = (data["completedAt"] as? Timestamp)?.dateValue()
         let score = data["score"] as? Int
         
-        return Test(
+        let test = Test(
             id: document.documentID,
             title: title,
             description: description,
@@ -151,11 +213,15 @@ final class TestService: TestServiceProtocol {
             duration: duration,
             status: status,
             createdBy: createdBy,
+            targetGroup: targetGroup,
             createdAt: createdAtTimestamp.dateValue(),
             dueDate: dueDate,
             completedAt: completedAt,
             score: score,
             maxScore: maxScore
         )
+        
+        print("✅ Successfully parsed test: \(title) (status: \(status.rawValue))")
+        return test
     }
 }

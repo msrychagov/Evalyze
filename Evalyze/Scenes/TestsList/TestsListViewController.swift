@@ -12,17 +12,13 @@ protocol TestsListViewControllerDelegate: AnyObject {
 }
 
 final class TestsListViewController: UIViewController {
-    // MARK: UI Properties
     private let tableView: UITableView = UITableView()
     private let emptyStateLabel: UILabel = UILabel()
     
-    // MARK: Properties
     private var tests: [Test] = []
     private let testStatus: TestStatus
     private let testService: TestServiceProtocol
     weak var delegate: TestsListViewControllerDelegate?
-    
-    // MARK: Initialization
     init(testStatus: TestStatus, testService: TestServiceProtocol = TestService()) {
         self.testStatus = testStatus
         self.testService = testService
@@ -92,44 +88,44 @@ final class TestsListViewController: UIViewController {
                     self?.filterAndDisplayTests(allTests, for: currentUser)
                 case .failure(let error):
                     print("❌ Failed to load tests: \(error.localizedDescription)")
-                    // Fallback to mock data for now
-                    self?.loadMockTests(for: currentUser)
+                    // Показываем пустой список вместо fallback на моки
+                    self?.tests = []
+                    self?.updateUI()
                 }
             }
         }
     }
     
     private func filterAndDisplayTests(_ allTests: [Test], for user: User) {
+        print("🔍 Filtering \(allTests.count) tests for \(user.role) with status: \(testStatus)")
+        print("👤 Current user ID: \(user.id)")
+        
         // Фильтруем по статусу
         let statusFilteredTests = allTests.filter { $0.status == testStatus }
+        print("📊 After status filter (\(testStatus)): \(statusFilteredTests.count) tests")
         
         // Фильтруем по роли пользователя
         switch user.role {
         case .student:
-            // Студенты видят все доступные тесты
-            tests = statusFilteredTests
+            // Студенты видят только тесты для своих групп
+            let userGroups = user.groups
+            tests = statusFilteredTests.filter { test in
+                userGroups.contains(test.targetGroup)
+            }
+            print("👨‍🎓 Student groups: \(userGroups), showing tests for these groups")
         case .teacher:
             // Преподаватели видят только тесты, которые они создали
+            print("👨‍🏫 Filtering tests created by teacher: \(user.id)")
+            for test in statusFilteredTests {
+                print("   📝 Test '\(test.title)' created by: '\(test.createdBy)' (match: \(test.createdBy == user.id))")
+            }
             tests = statusFilteredTests.filter { $0.createdBy == user.id }
         }
         
-        print("📝 Filtered to \(tests.count) tests for \(user.role)")
+        print("📝 Final result: \(tests.count) tests for \(user.role)")
         updateUI()
     }
     
-    private func loadMockTests(for user: User) {
-        print("🔄 Falling back to mock data")
-        let allTests = testStatus == .upcoming ? Test.mockUpcomingTests : Test.mockCompletedTests
-        
-        switch user.role {
-        case .student:
-            tests = allTests
-        case .teacher:
-            tests = allTests.filter { $0.createdBy == user.id }
-        }
-        
-        updateUI()
-    }
     
     private func updateUI() {
         emptyStateLabel.isHidden = !tests.isEmpty
@@ -142,6 +138,7 @@ final class TestsListViewController: UIViewController {
     
     // MARK: Public Methods
     func refreshTests() {
+        print("🔄 TestsListViewController: refreshing tests for status \(testStatus)")
         loadTests()
     }
 }
