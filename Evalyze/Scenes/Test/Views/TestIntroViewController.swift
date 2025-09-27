@@ -52,6 +52,7 @@ final class TestIntroViewController: UIViewController, TestViewProtocol {
         stack.pinRight(to: view, 16)
 
         startButton.setHeight(50)
+        startButton.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
     }
 
     // MARK: - TestViewProtocol

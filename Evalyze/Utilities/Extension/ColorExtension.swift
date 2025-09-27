@@ -15,6 +15,9 @@ extension UIColor {
     static let mainTextApp = UIColor.white
     static let secondaryTextApp = UIColor.white.withAlphaComponent(0.8)
     static let blueAccent = UIColor.adaptiveColor(lightHex: "#007AFF", darkHex: "#007AFF")
+    static let greenAccent = UIColor.adaptiveColor(lightHex: "#34C759", darkHex: "#34C759")
+    static let cardBackgroundApp = UIColor.adaptiveColor(lightHex: "#1C1C1E", darkHex: "#1C1C1E")
+    static let borderApp = UIColor.adaptiveColor(lightHex: "#2C2C2E", darkHex: "#2C2C2E")
 }
 
 extension UIColor {

@@ -13,6 +13,10 @@ final class DashboardViewController: UIViewController {
     private let worksLabel: UILabel = UILabel()
     private let segmentedControl: CustomSegmentedControl = CustomSegmentedControl()
     private let addButton: UIButton = UIButton(type: .system)
+    private let containerView: UIView = UIView()
+    
+    // MARK: Child View Controllers
+    private var currentTestsListViewController: TestsListViewController?
     
     // MARK: Mock User (temporary)
     private let currentUser: User = User(
@@ -39,6 +43,8 @@ final class DashboardViewController: UIViewController {
         if currentUser.isTeacher {
             configureAddButton()
         }
+        configureContainerView()
+        setupInitialTestsList()
     }
     
     private func configureProfileHeaderView() {
@@ -74,6 +80,20 @@ final class DashboardViewController: UIViewController {
         segmentedControl.setHeight(40)
     }
     
+    private func configureContainerView() {
+        containerView.backgroundColor = .clear
+        view.addSubview(containerView)
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.pinHorizontal(to: view)
+        containerView.pinTop(to: segmentedControl.bottomAnchor, 16)
+        
+        if currentUser.isTeacher {
+            containerView.pinBottom(to: addButton.topAnchor, 16)
+        } else {
+            containerView.pinBottom(to: view.safeAreaLayoutGuide.bottomAnchor, 16)
+        }
+    }
+    
     private func configureAddButton() {
         addButton.setTitle("+", for: .normal)
         addButton.setTitleColor(.white, for: .normal)
@@ -94,12 +114,39 @@ final class DashboardViewController: UIViewController {
         print("Add button tapped")
         // TODO: Add action for teacher
     }
+    
+    // MARK: Tests List Management
+    private func setupInitialTestsList() {
+        showTestsList(for: .upcoming)
+    }
+    
+    private func showTestsList(for status: TestStatus) {
+        // Remove current tests list if exists
+        if let currentVC = currentTestsListViewController {
+            currentVC.willMove(toParent: nil)
+            currentVC.view.removeFromSuperview()
+            currentVC.removeFromParent()
+        }
+        
+        // Create new tests list
+        let testsListVC = TestsListViewController(testStatus: status)
+        currentTestsListViewController = testsListVC
+        
+        // Add as child view controller
+        addChild(testsListVC)
+        containerView.addSubview(testsListVC.view)
+        testsListVC.view.translatesAutoresizingMaskIntoConstraints = false
+        testsListVC.view.pin(to: containerView)
+        testsListVC.didMove(toParent: self)
+    }
 }
 
 // MARK: - CustomSegmentedControlDelegate
 extension DashboardViewController: CustomSegmentedControlDelegate {
     func didSelectSegment(at index: Int) {
         print("Selected segment at index: \(index)")
-        // Handle segment selection logic here
+        
+        let testStatus: TestStatus = index == 0 ? .upcoming : .completed
+        showTestsList(for: testStatus)
     }
 }

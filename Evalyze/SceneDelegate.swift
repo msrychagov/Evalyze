@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow()
         window.windowScene = windowScene
-        let root = AuthenticationViewController()
+        let root = DashboardViewController()
         window.rootViewController = root
         self.window = window
         window.makeKeyAndVisible()
