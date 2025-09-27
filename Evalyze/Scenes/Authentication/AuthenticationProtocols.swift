@@ -112,7 +112,7 @@ struct LoginRequest {
 }
 
 struct RegistrationRequest {
-    let name: String
+    let fullName: String
     let email: String
     let password: String
     let role: UserRole

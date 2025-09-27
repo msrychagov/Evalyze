@@ -21,8 +21,8 @@ final class DashboardViewController: UIViewController {
     // MARK: Mock User (temporary)
     private let currentUser: User = User(
         id: "mock_user_id",
-        name: "Михаил Рычагов",
         email: "mikhail@example.com",
+        fullName: "Михаил Рычагов",
         role: .teacher,
         groups: ["БПИНЖ2383"],
         createdAt: Date()
@@ -51,7 +51,7 @@ final class DashboardViewController: UIViewController {
         let title = currentUser.isTeacher ? "Преподаватель" : "Студент"
         let group = currentUser.isStudent ? currentUser.studentGroup ?? "" : currentUser.teacherGroups.first ?? ""
         
-        profileHeaderView.configure(viewModel: .init(title: title, name: currentUser.name, group: group))
+        profileHeaderView.configure(viewModel: .init(title: title, name: currentUser.fullName, group: group))
         view.addSubview(profileHeaderView)
         profileHeaderView.translatesAutoresizingMaskIntoConstraints = false
         profileHeaderView.pinHorizontal(to: view, 10)

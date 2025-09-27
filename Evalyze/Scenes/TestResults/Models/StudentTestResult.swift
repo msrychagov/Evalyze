@@ -35,32 +35,32 @@ extension StudentTestResult {
         let mockStudents = [
             User(
                 id: "student1",
-                name: "Анна Иванова",
                 email: "anna@example.com",
+                fullName: "Анна Иванова",
                 role: .student,
                 groups: ["БПИНЖ2383"],
                 createdAt: Date()
             ),
             User(
                 id: "student2",
-                name: "Петр Петров",
                 email: "petr@example.com",
+                fullName: "Петр Петров",
                 role: .student,
                 groups: ["БПИНЖ2383"],
                 createdAt: Date()
             ),
             User(
                 id: "student3",
-                name: "Мария Сидорова",
                 email: "maria@example.com",
+                fullName: "Мария Сидорова",
                 role: .student,
                 groups: ["БПИНЖ2383"],
                 createdAt: Date()
             ),
             User(
                 id: "student4",
-                name: "Алексей Козлов",
                 email: "alexey@example.com",
+                fullName: "Алексей Козлов",
                 role: .student,
                 groups: ["БПИНЖ2383"],
                 createdAt: Date()

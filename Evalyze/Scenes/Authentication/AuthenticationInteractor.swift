@@ -82,7 +82,7 @@ extension AuthenticationInteractor: AuthenticationInteractorProtocol {
         }
         
         let request = RegistrationRequest(
-            name: name,
+            fullName: name,
             email: email,
             password: password,
             role: role,
@@ -237,7 +237,7 @@ final class AuthenticationService: AuthenticationServiceProtocol {
             let user = User(
                 id: firebaseUser.uid,
                 email: request.email,
-                fullName: request.name,
+                fullName: request.fullName,
                 role: request.role,
                 groups: request.groups,
                 createdAt: Date()
