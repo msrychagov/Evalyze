@@ -9,4 +9,5 @@ protocol TestInteractorInputProtocol: AnyObject {
     func fetchIntroInfo()
     func fetchQuestions()
     func submitAnswers(_ answers: [Int: String])
+    func setCurrentTest(_ test: Test)
 }

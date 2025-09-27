@@ -27,6 +27,17 @@ final class TestRouter: TestRouterProtocol {
         interactor.output = presenter
         view.navigationController?.pushViewController(testVC, animated: true)
     }
+    
+    func presentTest(from view: UIViewController, test: Test) {
+        let testVC = TestViewController()
+        let interactor = TestInteractor()
+        let router = self
+        let presenter = TestPresenter(view: testVC, interactor: interactor, router: router)
+        testVC.presenter = presenter
+        interactor.output = presenter
+        interactor.setCurrentTest(test) // Устанавливаем тест для оценки
+        view.navigationController?.pushViewController(testVC, animated: true)
+    }
 
     func presentFinishConfirmation(from view: UIViewController, confirmHandler: @escaping () -> Void) {
         let alert = UIAlertController(

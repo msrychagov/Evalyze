@@ -15,7 +15,7 @@ final class TestResultsInteractor: TestResultsInteractorInputProtocol {
         id: "mock_user_id",
         email: "mikhail@example.com",
         fullName: "Михаил Рычагов",
-        role: .teacher, // Измените на .student для тестирования режима студента
+        role: .student, // Измените на .student для тестирования режима студента
         groups: ["БПИНЖ2383"],
         createdAt: Date()
     )

@@ -194,9 +194,9 @@ extension DashboardViewController: TestsListViewControllerDelegate {
                 navigationController?.pushViewController(testResultsVC, animated: true)
             }
         } else {
-            // Переход к началу теста
-            print("Starting test: \(test.title)")
-            // TODO: Navigate to test start
+            // Переход к intro экрану теста
+            let testIntroVC = TestRouter.assembleModule()
+            navigationController?.pushViewController(testIntroVC, animated: true)
         }
     }
 }
