@@ -177,6 +177,7 @@ extension AuthenticationInteractor: AuthenticationInteractorProtocol {
 protocol AuthenticationServiceProtocol {
     func login(request: LoginRequest, completion: @escaping (Result<User, AuthenticationError>) -> Void)
     func register(request: RegistrationRequest, completion: @escaping (Result<User, AuthenticationError>) -> Void)
+    func logout(completion: @escaping (Result<Void, AuthenticationError>) -> Void)
 }
 
 protocol ValidationServiceProtocol {
@@ -325,11 +326,19 @@ final class AuthenticationService: AuthenticationServiceProtocol {
             return .serverError(authError.localizedDescription)
         }
     }
+    
+    func logout(completion: @escaping (Result<Void, AuthenticationError>) -> Void) {
+        do {
+            try auth.signOut()
+            completion(.success(()))
+        } catch let error {
+            completion(.failure(.serverError("Ошибка выхода: \(error.localizedDescription)")))
+        }
+    }
 }
 
 final class ValidationService: ValidationServiceProtocol {
     func isValidEmail(_ email: String) -> Bool {
-        // Общая проверка на HSE email адреса
         let emailRegex = "^[A-Za-z0-9._%+-]+@(edu\\.hse\\.ru|hse\\.ru)$"
         let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
         return emailPredicate.evaluate(with: email)
@@ -340,13 +349,11 @@ final class ValidationService: ValidationServiceProtocol {
         
         switch role {
         case .student:
-            // Студенты должны использовать @edu.hse.ru
             let studentEmailRegex = "^[A-Za-z0-9._%+-]+@edu\\.hse\\.ru$"
             let studentPredicate = NSPredicate(format: "SELF MATCHES %@", studentEmailRegex)
             return studentPredicate.evaluate(with: emailLowercase)
             
         case .teacher:
-            // Преподаватели должны использовать @hse.ru
             let teacherEmailRegex = "^[A-Za-z0-9._%+-]+@hse\\.ru$"
             let teacherPredicate = NSPredicate(format: "SELF MATCHES %@", teacherEmailRegex)
             return teacherPredicate.evaluate(with: emailLowercase)
@@ -360,21 +367,18 @@ final class ValidationService: ValidationServiceProtocol {
     func isValidName(_ name: String) -> Bool {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // Проверяем минимальную длину и наличие пробела (ФИО)
         guard trimmedName.count >= 2 && trimmedName.contains(" ") else {
             return false
         }
         
-        // Проверяем, что нет цифр
         let hasNumbers = trimmedName.rangeOfCharacter(from: .decimalDigits) != nil
         if hasNumbers {
             return false
         }
         
-        // Проверяем, что содержит только буквы, пробелы и допустимые символы
         let allowedCharacters = CharacterSet.letters
             .union(.whitespaces)
-            .union(CharacterSet(charactersIn: "-'"))  // Разрешаем дефисы и апострофы
+            .union(CharacterSet(charactersIn: "-'"))
         
         return trimmedName.rangeOfCharacter(from: allowedCharacters.inverted) == nil
     }
