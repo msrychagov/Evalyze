@@ -21,7 +21,7 @@ final class QuestionSelectionViewController: UIViewController {
     // MARK: Initialization
     init(questions: [Question], selectedQuestions: [Question], completion: @escaping ([Question]) -> Void) {
         self.questions = questions
-        self.selectedQuestions = Set(selectedQuestions.map { $0.id })
+        self.selectedQuestions = Set(selectedQuestions.map { $0.intId })
         self.completion = completion
         super.init(nibName: nil, bundle: nil)
     }
@@ -133,14 +133,14 @@ final class QuestionSelectionViewController: UIViewController {
             selectedQuestions.removeAll()
         } else {
             // Select all
-            selectedQuestions = Set(questions.map { $0.id })
+            selectedQuestions = Set(questions.map { $0.intId })
         }
         tableView.reloadData()
         updateButtons()
     }
     
     @objc private func doneButtonTapped() {
-        let selectedQuestionsArray = questions.filter { selectedQuestions.contains($0.id) }
+        let selectedQuestionsArray = questions.filter { selectedQuestions.contains($0.intId) }
         completion?(selectedQuestionsArray)
         dismiss(animated: true)
     }
@@ -158,7 +158,7 @@ extension QuestionSelectionViewController: UITableViewDataSource {
         }
         
         let question = questions[indexPath.row]
-        let isSelected = selectedQuestions.contains(question.id)
+        let isSelected = selectedQuestions.contains(question.intId)
         
         cell.configure(with: question, isSelected: isSelected)
         cell.delegate = self
@@ -173,10 +173,10 @@ extension QuestionSelectionViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         
         let question = questions[indexPath.row]
-        if selectedQuestions.contains(question.id) {
-            selectedQuestions.remove(question.id)
+        if selectedQuestions.contains(question.intId) {
+            selectedQuestions.remove(question.intId)
         } else {
-            selectedQuestions.insert(question.id)
+            selectedQuestions.insert(question.intId)
         }
         
         tableView.reloadRows(at: [indexPath], with: .none)
@@ -187,13 +187,13 @@ extension QuestionSelectionViewController: UITableViewDelegate {
 // MARK: - QuestionSelectionTableViewCellDelegate
 extension QuestionSelectionViewController: QuestionSelectionTableViewCellDelegate {
     func didToggleSelection(for question: Question) {
-        if selectedQuestions.contains(question.id) {
-            selectedQuestions.remove(question.id)
+        if selectedQuestions.contains(question.intId) {
+            selectedQuestions.remove(question.intId)
         } else {
-            selectedQuestions.insert(question.id)
+            selectedQuestions.insert(question.intId)
         }
         
-        if let index = questions.firstIndex(where: { $0.id == question.id }) {
+        if let index = questions.firstIndex(where: { $0.intId == question.intId }) {
             tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
         }
         updateButtons()

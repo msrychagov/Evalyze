@@ -14,6 +14,7 @@ final class TestCreationPresenter: TestCreationPresenterProtocol, TestCreationIn
     var router: TestCreationRouterProtocol?
     
     private var testModel = TestCreationModel()
+    private var allQuestions: [Question] = []
     
     func viewDidLoad() {
         view?.showLoading()
@@ -26,13 +27,17 @@ final class TestCreationPresenter: TestCreationPresenterProtocol, TestCreationIn
     }
     
     func didSelectQuestion(_ question: Question) {
-        if !testModel.selectedQuestions.contains(where: { $0.id == question.id }) {
+        if !testModel.selectedQuestions.contains(where: { $0.intId == question.intId }) {
             testModel.selectedQuestions.append(question)
         }
     }
     
     func didDeselectQuestion(_ question: Question) {
-        testModel.selectedQuestions.removeAll { $0.id == question.id }
+        testModel.selectedQuestions.removeAll { $0.intId == question.intId }
+    }
+    
+    func didUpdateSelectedQuestions(_ questions: [Question]) {
+        testModel.selectedQuestions = questions
     }
     
     func didUpdateTitle(_ title: String) {
@@ -52,8 +57,22 @@ final class TestCreationPresenter: TestCreationPresenterProtocol, TestCreationIn
     }
     
     func didTapCreateTest() {
+        print("🔍 Validating test creation:")
+        print("- Title: '\(testModel.title)' (isEmpty: \(testModel.title.isEmpty))")
+        print("- Description: '\(testModel.description)' (isEmpty: \(testModel.description.isEmpty))")
+        print("- Selected Group: \(testModel.selectedGroup ?? "nil")")
+        print("- Selected Questions: \(testModel.selectedQuestions.count) questions")
+        print("- Is Valid: \(testModel.isValid)")
+        
         guard testModel.isValid else {
-            view?.showError("Заполните все обязательные поля")
+            var missingFields: [String] = []
+            if testModel.title.isEmpty { missingFields.append("Название") }
+            if testModel.description.isEmpty { missingFields.append("Описание") }
+            if testModel.selectedGroup == nil { missingFields.append("Группа") }
+            if testModel.selectedQuestions.isEmpty { missingFields.append("Вопросы") }
+            
+            let errorMessage = "Заполните все обязательные поля: \(missingFields.joined(separator: ", "))"
+            view?.showError(errorMessage)
             return
         }
         
@@ -73,12 +92,20 @@ final class TestCreationPresenter: TestCreationPresenterProtocol, TestCreationIn
     
     // MARK: - TestCreationInteractorOutputProtocol
     func didFetchGroups(_ groups: [String]) {
+        print("📋 Presenter received \(groups.count) groups: \(groups)")
         view?.showGroups(groups)
     }
     
     func didFetchQuestions(_ questions: [Question]) {
+        print("📋 Presenter received \(questions.count) questions")
+        allQuestions = questions
         view?.showQuestions(questions)
         view?.hideLoading()
+    }
+    
+    // MARK: - Public Methods
+    func getAllQuestions() -> [Question]? {
+        return allQuestions.isEmpty ? nil : allQuestions
     }
     
     func didCreateTest(_ test: Test) {

@@ -213,7 +213,7 @@ final class QuestionResultTableViewCell: UITableViewCell {
         let newScore = Int(scoreStepper.value)
         scoreLabel.text = "\(newScore)/\(result.maxScore)"
         scoreLabel.textColor = getScoreColor(for: newScore)
-        delegate?.didUpdateScore(for: result.question.id, score: newScore)
+        delegate?.didUpdateScore(for: result.question.intId, score: newScore)
     }
     
     private func getScoreColor(for score: Int) -> UIColor {

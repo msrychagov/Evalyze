@@ -72,7 +72,7 @@ final class TestPresenter: TestPresenterProtocol {
     // MARK: - Private helpers
     private func submitAnswers() {
         view?.showSubmitting()
-        let answers = Dictionary(uniqueKeysWithValues: questions.map { ($0.id, $0.answer ?? "") })
+        let answers = Dictionary(uniqueKeysWithValues: questions.map { ($0.intId, $0.answer ?? "") })
         interactor.submitAnswers(answers)
     }
 

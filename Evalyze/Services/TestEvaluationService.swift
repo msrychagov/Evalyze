@@ -73,7 +73,7 @@ class TestEvaluationService: TestEvaluationServiceProtocol {
         """
         
         for (index, question) in test.questions.enumerated() {
-            let studentAnswer = studentAnswers[question.id] ?? "Ответ не предоставлен"
+            let studentAnswer = studentAnswers[question.intId] ?? "Ответ не предоставлен"
             prompt += """
             
             Вопрос \(index + 1) (ID: \(question.id)):

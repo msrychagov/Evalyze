@@ -10,15 +10,10 @@ import Foundation
 final class TestResultsInteractor: TestResultsInteractorInputProtocol {
     weak var presenter: TestResultsInteractorOutputProtocol?
     
-    // Mock пользователь - можно изменить на .student для тестирования
-    private let currentUser: User = User(
-        id: "mock_user_id",
-        email: "mikhail@example.com",
-        fullName: "Михаил Рычагов",
-        role: .student, // Измените на .student для тестирования режима студента
-        groups: ["БПИНЖ2383"],
-        createdAt: Date()
-    )
+    // Реальный пользователь из системы
+    private var currentUser: User? {
+        return UserManager.shared.getCurrentUser()
+    }
     
     private var studentResult: StudentTestResult?
     
@@ -56,6 +51,6 @@ final class TestResultsInteractor: TestResultsInteractorInputProtocol {
     }
     
     func getCurrentUserRole() -> UserRole {
-        return currentUser.role
+        return currentUser?.role ?? .student
     }
 }
