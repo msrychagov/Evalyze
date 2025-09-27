@@ -7,15 +7,15 @@
 
 import Foundation
 
-enum UserRole: String {
+enum UserRole: String, CaseIterable, Codable {
     case student
     case teacher
 }
 
-struct User {
+struct User: Codable {
     let id: String
-    let name: String
     let email: String
+    let fullName: String
     let role: UserRole
     let groups: [String]
     let createdAt: Date

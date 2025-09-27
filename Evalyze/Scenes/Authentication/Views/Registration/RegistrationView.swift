@@ -228,10 +228,13 @@ final class RegistrationView: UIView {
     }()
     
     private var createdGroups: [String] = []
+    private var availableGroups: [Group] = []
     
     var onRegistrationTapped: ((String, String, String, UserRole, [String]) -> Void)?
     var onEmailChanged: ((String) -> Void)?
     var onGroupSelected: ((String) -> Void)?
+    var onLoadGroups: (() -> Void)?
+    var onCreateGroup: ((String) -> Void)?
     
     // MARK: - Initializers
     
@@ -255,6 +258,12 @@ final class RegistrationView: UIView {
         configureRoleSwitch()
         configureGroupElements()
         configureRegistrationButton()
+        
+        // Устанавливаем начальный placeholder для студента
+        updateEmailPlaceholder(for: .student)
+        
+        // Запрашиваем загрузку групп
+        onLoadGroups?()
     }
     
     private final func configureNameLabel() {
@@ -324,7 +333,6 @@ final class RegistrationView: UIView {
         groupButton.setHeight(44)
         groupButton.addTarget(self, action: #selector(groupButtonTapped), for: .touchUpInside)
         
-        // Настройка элементов для преподавателей
         self.addSubview(createGroupLabel)
         createGroupLabel.pinTop(to: roleSwitch.bottomAnchor, 25)
         createGroupLabel.pinLeft(to: self.leadingAnchor, 5)
@@ -381,8 +389,10 @@ final class RegistrationView: UIView {
     @objc private func roleSwitchChanged() {
         if roleSwitch.selectedSegmentIndex == 0 {
             showStudentElements()
+            updateEmailPlaceholder(for: .student)
         } else {
             showTeacherElements()
+            updateEmailPlaceholder(for: .teacher)
         }
         updateRegistrationButtonConstraints()
         
@@ -405,14 +415,34 @@ final class RegistrationView: UIView {
         addGroupButton.isHidden = false
     }
     
+    private func updateEmailPlaceholder(for role: UserRole) {
+        let placeholderText: String
+        let textColor = UIColor.secondaryTextApp
+        
+        switch role {
+        case .student:
+            placeholderText = "student@edu.hse.ru"
+        case .teacher:
+            placeholderText = "teacher@hse.ru"
+        }
+        
+        emailField.attributedPlaceholder = NSAttributedString(
+            string: placeholderText,
+            attributes: [.foregroundColor: textColor]
+        )
+    }
+    
     @objc private func groupButtonTapped() {
-        let groups = ["ИВТ-21", "ИВТ-22", "ИВТ-23", "ПИ-21", "ПИ-22", "ИБ-21"]
+        guard !availableGroups.isEmpty else {
+            showNoGroupsAlert()
+            return
+        }
         
         let alert = UIAlertController(title: "Выберите группу", message: nil, preferredStyle: .actionSheet)
         
-        groups.forEach { group in
-            alert.addAction(UIAlertAction(title: group, style: .default) { [weak self] _ in
-                self?.selectGroup(group)
+        availableGroups.forEach { group in
+            alert.addAction(UIAlertAction(title: group.displayName, style: .default) { [weak self] _ in
+                self?.selectGroup(group.name)
             })
         }
         
@@ -429,21 +459,83 @@ final class RegistrationView: UIView {
         onGroupSelected?(groupName)
     }
     
+    private func showNoGroupsAlert() {
+        let alert = UIAlertController(
+            title: "Нет доступных групп",
+            message: "Пока нет созданных групп. Обратитесь к преподавателю для создания группы.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        if let parentViewController = self.findViewController() {
+            parentViewController.present(alert, animated: true)
+        }
+    }
+    
     @objc private func addGroupButtonTapped() {
         guard let groupText = createGroupField.text, !groupText.isEmpty else { return }
         
-        let newGroups = groupText.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let trimmedGroupName = groupText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedGroupName.isEmpty else { return }
         
-        createdGroups.append(contentsOf: newGroups)
+        let groupExists = availableGroups.contains { $0.name.uppercased() == trimmedGroupName.uppercased() } ||
+                         createdGroups.contains { $0.uppercased() == trimmedGroupName.uppercased() }
+        
+        if groupExists {
+            showGroupExistsAlert(groupName: trimmedGroupName)
+            return
+        }
+        
+        createdGroups.append(trimmedGroupName)
         createGroupField.text = ""
         
-        let groupCount = createdGroups.count
-        createGroupField.attributedPlaceholder = NSAttributedString(
-            string: "Создано групп: \(groupCount). Добавить еще?",
-            attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.8)]
+        onCreateGroup?(trimmedGroupName)
+        updateCreateGroupPlaceholder()
+        
+        print("Группа добавлена локально: \(trimmedGroupName)")
+        print("Всего групп для создания: \(createdGroups)")
+    }
+    
+    private func showGroupExistsAlert(groupName: String) {
+        let alert = UIAlertController(
+            title: "Группа уже существует",
+            message: "Группа \"\(groupName)\" уже создана",
+            preferredStyle: .alert
         )
         
-        print("Созданные группы: \(createdGroups)")
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        if let parentViewController = self.findViewController() {
+            parentViewController.present(alert, animated: true)
+        }
+    }
+    
+    private func updateCreateGroupPlaceholder() {
+        let groupCount = createdGroups.count
+        let placeholderText = groupCount == 0 ? 
+            "Введите название группы" : 
+            "Создано групп: \(groupCount). Добавить еще?"
+        
+        createGroupField.attributedPlaceholder = NSAttributedString(
+            string: placeholderText,
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
+        )
+    }
+    
+    // MARK: - Public Methods
+    func updateAvailableGroups(_ groups: [Group]) {
+        availableGroups = groups
+        
+        if availableGroups.isEmpty {
+            groupButton.setTitle("Нет доступных групп", for: .normal)
+            groupButton.setTitleColor(.secondaryTextApp, for: .normal)
+            groupButton.isEnabled = false
+        } else {
+            groupButton.setTitle("Выберите группу", for: .normal)
+            groupButton.setTitleColor(.secondaryTextApp, for: .normal)
+            groupButton.isEnabled = true
+        }
     }
     
     @objc private func buttonTouchUp() {
@@ -461,7 +553,7 @@ final class RegistrationView: UIView {
         
         var groups: [String] = []
         
-        if roleSwitch.selectedSegmentIndex == 0 { // Студент
+        if roleSwitch.selectedSegmentIndex == 0 {
             if let selectedGroup = groupButton.titleLabel?.text, selectedGroup != "Выберите группу" {
                 groups = [selectedGroup]
             }
