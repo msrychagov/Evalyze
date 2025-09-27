@@ -348,7 +348,6 @@ final class RegistrationView: UIView {
         
         // Кнопка будет привязана к нижнему элементу в зависимости от роли
         updateRegistrationButtonConstraints()
-        
         registrationButton.pinHorizontal(to: self)
         registrationButton.setHeight(50)
         registrationButton.pinBottom(to: self, 20)
