@@ -123,6 +123,7 @@ final class RegistrationView: UIView {
         button.titleLabel?.font = UIFont.custom(.sansBold, size: 18)
         button.layer.cornerRadius = 10
         button.backgroundColor = .white
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -259,7 +260,8 @@ final class RegistrationView: UIView {
         configureGroupElements()
         configureRegistrationButton()
         
-        // Устанавливаем начальный placeholder для студента
+        // Устанавливаем начальное состояние для студента
+        showStudentElements()
         updateEmailPlaceholder(for: .student)
         
         // Запрашиваем загрузку групп
@@ -354,26 +356,34 @@ final class RegistrationView: UIView {
     private final func configureRegistrationButton() {
         self.addSubview(registrationButton)
         
-        // Кнопка будет привязана к нижнему элементу в зависимости от роли
-        updateRegistrationButtonConstraints()
+        // Настраиваем статичные констрейнты
         registrationButton.pinHorizontal(to: self)
         registrationButton.setHeight(50)
         registrationButton.pinBottom(to: self, 20)
+        
+        // Устанавливаем динамический top констрейнт
+        updateRegistrationButtonConstraints()
         
         registrationButton.addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
         registrationButton.addTarget(self, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         registrationButton.addTarget(self, action: #selector(registrationButtonTapped), for: .touchUpInside)
     }
     
+    private var registrationButtonTopConstraint: NSLayoutConstraint?
+    
     private func updateRegistrationButtonConstraints() {
-        registrationButton.removeFromSuperview()
-        self.addSubview(registrationButton)
+        // Деактивируем старый констрейнт
+        registrationButtonTopConstraint?.isActive = false
         
+        // Создаем новый констрейнт в зависимости от выбранной роли
         if roleSwitch.selectedSegmentIndex == 0 { // Студент
-            registrationButton.pinTop(to: groupButton.bottomAnchor, 35)
+            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: groupButton.bottomAnchor, constant: 35)
         } else { // Преподаватель
-            registrationButton.pinTop(to: addGroupButton.bottomAnchor, 35)
+            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: addGroupButton.bottomAnchor, constant: 35)
         }
+        
+        // Активируем новый констрейнт
+        registrationButtonTopConstraint?.isActive = true
     }
     
     @objc private func buttonTouchDown() {
