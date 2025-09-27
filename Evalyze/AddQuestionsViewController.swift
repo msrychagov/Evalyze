@@ -17,7 +17,7 @@ class AddQuestionsViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = "Добавление вопросов в Firestore"
         titleLabel.textAlignment = .center
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        titleLabel.setCustomFont(.sansSemiBold, size: 18)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let activityIndicator = UIActivityIndicatorView(style: .large)

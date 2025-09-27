@@ -26,7 +26,7 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     
     // MARK: Properties
     private var testModel = TestCreationModel()
-    private var selectedQuestions: [Question] = []
+    private var availableQuestions: [Question] = []
     
     // MARK: Lifecycle
     override func viewDidLoad() {
@@ -42,6 +42,7 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     
     func showQuestions(_ questions: [Question]) {
         // Questions will be shown in selection screen
+        availableQuestions = questions
     }
     
     func showError(_ message: String) {
@@ -84,18 +85,23 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
         setupCreateButton()
         setupLoadingView()
         setupConstraints()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        scrollView.addGestureRecognizer(tapGesture)
+        
+        updateQuestionsButton()
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func setupNavigationBar() {
         title = "Создание теста"
         navigationController?.navigationBar.prefersLargeTitles = false
         
-        let cancelButton = UIBarButtonItem(
-            barButtonSystemItem: .cancel,
-            target: self,
-            action: #selector(cancelButtonTapped)
-        )
-        navigationItem.leftBarButtonItem = cancelButton
+        navigationItem.leftBarButtonItem = nil
     }
     
     private func setupScrollView() {
@@ -106,10 +112,16 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     }
     
     private func setupTitleField() {
-        titleTextField.placeholder = "Название теста"
+        titleTextField.attributedPlaceholder = NSAttributedString(
+            string: "Название теста",
+            attributes: [
+                .foregroundColor: UIColor.secondaryTextApp,
+                .font: UIFont.custom(.sansRegular, size: 16)
+            ]
+        )
         titleTextField.backgroundColor = .cardBackgroundApp
         titleTextField.textColor = .mainTextApp
-        titleTextField.font = UIFont.systemFont(ofSize: 16)
+        titleTextField.setCustomFont(.sansRegular, size: 16)
         titleTextField.layer.cornerRadius = 8
         titleTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 0))
         titleTextField.leftViewMode = .always
@@ -121,7 +133,7 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     private func setupDescriptionView() {
         descriptionTextView.backgroundColor = .cardBackgroundApp
         descriptionTextView.textColor = .mainTextApp
-        descriptionTextView.font = UIFont.systemFont(ofSize: 16)
+        descriptionTextView.setCustomFont(.sansRegular, size: 16)
         descriptionTextView.layer.cornerRadius = 8
         descriptionTextView.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 12, right: 8)
         descriptionTextView.delegate = self
@@ -194,6 +206,7 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
         
         dueDatePicker.datePickerMode = .dateAndTime
         dueDatePicker.minimumDate = Date()
+        dueDatePicker.locale = Locale(identifier: "ru_RU")
         dueDatePicker.addTarget(self, action: #selector(dueDateChanged), for: .valueChanged)
         
         contentView.addSubview(dueDateLabel)
@@ -329,7 +342,22 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
     }
     
     @objc private func questionsButtonTapped() {
-        presenter?.didTapSelectQuestions()
+        guard !availableQuestions.isEmpty else {
+            showError("Сначала загрузите список вопросов")
+            return
+        }
+        
+        let vc = QuestionSelectionViewController(
+            questions: availableQuestions,
+            selectedQuestions: testModel.selectedQuestions
+        ) { [weak self] selected in
+            guard let self = self else { return }
+            self.testModel.selectedQuestions = selected
+            self.updateQuestionsButton()
+        }
+        
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
     }
     
     @objc private func durationChanged() {
@@ -351,6 +379,12 @@ final class TestCreationViewController: UIViewController, TestCreationViewProtoc
             showError("Заполните все обязательные поля")
         }
     }
+    
+    // MARK: Helpers
+    func updateQuestionsButton() {
+        let count = testModel.selectedQuestions.count
+        questionsButton.setTitle("Выберите вопросы (\(count))", for: .normal)
+    }
 }
 
 // MARK: - UITextViewDelegate
@@ -370,10 +404,5 @@ extension TestCreationViewController: UITextViewDelegate {
             testModel.description = textView.text
             presenter?.didUpdateDescription(testModel.description)
         }
-    }
-    
-    func updateQuestionsButton() {
-        let count = testModel.selectedQuestions.count
-        questionsButton.setTitle("Выберите вопросы (\(count))", for: .normal)
     }
 }

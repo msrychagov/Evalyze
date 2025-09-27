@@ -50,12 +50,7 @@ final class QuestionSelectionViewController: UIViewController {
         title = "Выбор вопросов"
         navigationController?.navigationBar.prefersLargeTitles = false
         
-        let cancelButton = UIBarButtonItem(
-            barButtonSystemItem: .cancel,
-            target: self,
-            action: #selector(cancelButtonTapped)
-        )
-        navigationItem.leftBarButtonItem = cancelButton
+        navigationItem.leftBarButtonItem = nil
     }
     
     private func setupTableView() {

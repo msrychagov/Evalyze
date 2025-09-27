@@ -29,6 +29,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = authViewController
         }
         
+        window.overrideUserInterfaceStyle = .dark
+        
         self.window = window
         window.makeKeyAndVisible()
     }
