@@ -12,7 +12,7 @@ final class LoginView: UIView {
         let label = UILabel()
         label.text = "Email"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -21,14 +21,14 @@ final class LoginView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
         field.autocapitalizationType = .none
         
         field.keyboardType = .emailAddress
-        field.textContentType = .emailAddress
+        field.textContentType = .none
         field.returnKeyType = .next
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
@@ -38,7 +38,7 @@ final class LoginView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "example@email.com",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -47,7 +47,7 @@ final class LoginView: UIView {
         let label = UILabel()
         label.text = "Пароль"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -56,14 +56,15 @@ final class LoginView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
         field.autocapitalizationType = .none
         
-        field.isSecureTextEntry = true
-        field.textContentType = .password
+        field.isSecureTextEntry = false
+        field.textContentType = .none
+        field.passwordRules = nil
         field.returnKeyType = .done
         field.keyboardType = .asciiCapable
         
@@ -74,7 +75,7 @@ final class LoginView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "password",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -85,7 +86,7 @@ final class LoginView: UIView {
         button.setTitleColor(.grayApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansBold, size: 18)
         button.layer.cornerRadius = 10
-        button.backgroundColor = .mainTextColor
+        button.backgroundColor = .mainTextApp
         return button
     }()
     

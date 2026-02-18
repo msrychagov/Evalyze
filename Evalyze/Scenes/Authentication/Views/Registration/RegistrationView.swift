@@ -14,7 +14,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "ФИО"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -23,13 +23,13 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
         field.autocapitalizationType = .words
         
-        field.textContentType = .name
+        field.textContentType = .none
         field.keyboardType = .default
         field.returnKeyType = .next
         
@@ -40,7 +40,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "Иванов Иван Иванович",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -49,7 +49,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Email"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -65,7 +65,7 @@ final class RegistrationView: UIView {
         field.autocapitalizationType = .none
         
         field.keyboardType = .emailAddress
-        field.textContentType = .emailAddress
+        field.textContentType = .none
         field.returnKeyType = .next
         
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: 0))
@@ -75,7 +75,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "example@email.com",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -84,7 +84,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Пароль"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         return label
     }()
@@ -93,14 +93,15 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = UIColor(hex: "#2C2C2E")
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         
         field.autocorrectionType = .no
         field.spellCheckingType = .no
         field.autocapitalizationType = .none
         
-        field.isSecureTextEntry = true
-        field.textContentType = .password
+        field.isSecureTextEntry = false
+        field.textContentType = .none
+        field.passwordRules = nil
         field.returnKeyType = .default
         field.keyboardType = .asciiCapable
         
@@ -111,7 +112,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "password",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -123,6 +124,7 @@ final class RegistrationView: UIView {
         button.titleLabel?.font = UIFont.custom(.sansBold, size: 18)
         button.layer.cornerRadius = 10
         button.backgroundColor = .white
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -153,16 +155,16 @@ final class RegistrationView: UIView {
         button.contentHorizontalAlignment = .left
         
         button.setTitle("Выберите группу", for: .normal)
-        button.setTitleColor(.secondaryTextColor, for: .normal)
+        button.setTitleColor(.secondaryTextApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansRegular, size: 16)
         
-        let arrowImage = UIImage(systemName: "chevron.down")?.withTintColor(.secondaryTextColor, renderingMode: .alwaysOriginal)
+        let arrowImage = UIImage(systemName: "chevron.down")?.withTintColor(.secondaryTextApp, renderingMode: .alwaysOriginal)
         button.setImage(arrowImage, for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         
         var config = UIButton.Configuration.plain()
         config.title = "Выберите группу"
-        config.baseForegroundColor = .secondaryTextColor
+        config.baseForegroundColor = .secondaryTextApp
         config.image = arrowImage
         config.imagePlacement = .trailing
         config.imagePadding = 10
@@ -181,7 +183,7 @@ final class RegistrationView: UIView {
         let label = UILabel()
         label.text = "Создайте группы"
         label.setCustomFont(.sansRegular, size: 16)
-        label.textColor = .mainTextColor
+        label.textColor = .mainTextApp
         label.textAlignment = .left
         label.isHidden = true
         return label
@@ -191,7 +193,7 @@ final class RegistrationView: UIView {
         let field = UITextField()
         field.backgroundColor = .lightGrayApp
         field.layer.cornerRadius = 10
-        field.textColor = .mainTextColor
+        field.textColor = .mainTextApp
         field.isHidden = true
         
         field.autocorrectionType = .no
@@ -209,7 +211,7 @@ final class RegistrationView: UIView {
         
         field.attributedPlaceholder = NSAttributedString(
             string: "Введите названия групп через запятую",
-            attributes: [.foregroundColor: UIColor.secondaryTextColor]
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
         )
         return field
     }()
@@ -221,17 +223,20 @@ final class RegistrationView: UIView {
         button.isHidden = true
         
         button.setTitle("+ Добавить группу", for: .normal)
-        button.setTitleColor(.secondaryTextColor, for: .normal)
+        button.setTitleColor(.secondaryTextApp, for: .normal)
         button.titleLabel?.font = UIFont.custom(.sansRegular, size: 14)
         
         return button
     }()
     
     private var createdGroups: [String] = []
+    private var availableGroups: [Group] = []
     
     var onRegistrationTapped: ((String, String, String, UserRole, [String]) -> Void)?
     var onEmailChanged: ((String) -> Void)?
     var onGroupSelected: ((String) -> Void)?
+    var onLoadGroups: (() -> Void)?
+    var onCreateGroup: ((String) -> Void)?
     
     // MARK: - Initializers
     
@@ -255,6 +260,13 @@ final class RegistrationView: UIView {
         configureRoleSwitch()
         configureGroupElements()
         configureRegistrationButton()
+        
+        // Устанавливаем начальное состояние для студента
+        showStudentElements()
+        updateEmailPlaceholder(for: .student)
+        
+        // Запрашиваем загрузку групп
+        onLoadGroups?()
     }
     
     private final func configureNameLabel() {
@@ -325,7 +337,6 @@ final class RegistrationView: UIView {
         groupButton.setHeight(44)
         groupButton.addTarget(self, action: #selector(groupButtonTapped), for: .touchUpInside)
         
-        // Настройка элементов для преподавателей
         self.addSubview(createGroupLabel)
         createGroupLabel.pinTop(to: roleSwitch.bottomAnchor, 25)
         createGroupLabel.pinLeft(to: self.leadingAnchor, 5)
@@ -346,27 +357,34 @@ final class RegistrationView: UIView {
     private final func configureRegistrationButton() {
         self.addSubview(registrationButton)
         
-        // Кнопка будет привязана к нижнему элементу в зависимости от роли
-        updateRegistrationButtonConstraints()
-        
+        // Настраиваем статичные констрейнты
         registrationButton.pinHorizontal(to: self)
         registrationButton.setHeight(50)
         registrationButton.pinBottom(to: self, 20)
+        
+        // Устанавливаем динамический top констрейнт
+        updateRegistrationButtonConstraints()
         
         registrationButton.addTarget(self, action: #selector(buttonTouchDown), for: .touchDown)
         registrationButton.addTarget(self, action: #selector(buttonTouchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel])
         registrationButton.addTarget(self, action: #selector(registrationButtonTapped), for: .touchUpInside)
     }
     
+    private var registrationButtonTopConstraint: NSLayoutConstraint?
+    
     private func updateRegistrationButtonConstraints() {
-        registrationButton.removeFromSuperview()
-        self.addSubview(registrationButton)
+        // Деактивируем старый констрейнт
+        registrationButtonTopConstraint?.isActive = false
         
+        // Создаем новый констрейнт в зависимости от выбранной роли
         if roleSwitch.selectedSegmentIndex == 0 { // Студент
-            registrationButton.pinTop(to: groupButton.bottomAnchor, 35)
+            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: groupButton.bottomAnchor, constant: 35)
         } else { // Преподаватель
-            registrationButton.pinTop(to: addGroupButton.bottomAnchor, 35)
+            registrationButtonTopConstraint = registrationButton.topAnchor.constraint(equalTo: addGroupButton.bottomAnchor, constant: 35)
         }
+        
+        // Активируем новый констрейнт
+        registrationButtonTopConstraint?.isActive = true
     }
     
     @objc private func buttonTouchDown() {
@@ -380,8 +398,10 @@ final class RegistrationView: UIView {
         UIView.animate(withDuration: 0.3) {
             if self.roleSwitch.selectedSegmentIndex == 0 { // Студент
                 self.showStudentElements()
+                self.updateEmailPlaceholder(for: .student)
             } else { // Преподаватель
                 self.showTeacherElements()
+                self.updateEmailPlaceholder(for: .teacher)
             }
             self.updateRegistrationButtonConstraints()
             self.layoutIfNeeded()
@@ -402,14 +422,34 @@ final class RegistrationView: UIView {
         addGroupButton.isHidden = false
     }
     
+    private func updateEmailPlaceholder(for role: UserRole) {
+        let placeholderText: String
+        let textColor = UIColor.secondaryTextApp
+        
+        switch role {
+        case .student:
+            placeholderText = "student@edu.hse.ru"
+        case .teacher:
+            placeholderText = "teacher@hse.ru"
+        }
+        
+        emailField.attributedPlaceholder = NSAttributedString(
+            string: placeholderText,
+            attributes: [.foregroundColor: textColor]
+        )
+    }
+    
     @objc private func groupButtonTapped() {
-        let groups = ["ИВТ-21", "ИВТ-22", "ИВТ-23", "ПИ-21", "ПИ-22", "ИБ-21"]
+        guard !availableGroups.isEmpty else {
+            showNoGroupsAlert()
+            return
+        }
         
         let alert = UIAlertController(title: "Выберите группу", message: nil, preferredStyle: .actionSheet)
         
-        groups.forEach { group in
-            alert.addAction(UIAlertAction(title: group, style: .default) { [weak self] _ in
-                self?.selectGroup(group)
+        availableGroups.forEach { group in
+            alert.addAction(UIAlertAction(title: group.displayName, style: .default) { [weak self] _ in
+                self?.selectGroup(group.name)
             })
         }
         
@@ -426,23 +466,86 @@ final class RegistrationView: UIView {
         onGroupSelected?(groupName)
     }
     
+    private func showNoGroupsAlert() {
+        let alert = UIAlertController(
+            title: "Нет доступных групп",
+            message: "Пока нет созданных групп. Обратитесь к преподавателю для создания группы.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        if let parentViewController = self.findViewController() {
+            parentViewController.present(alert, animated: true)
+        }
+    }
+    
     @objc private func addGroupButtonTapped() {
         guard let groupText = createGroupField.text, !groupText.isEmpty else { return }
         
         // Разбиваем по запятым и очищаем от пробелов
         let newGroups = groupText.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         
-        createdGroups.append(contentsOf: newGroups)
-        createGroupField.text = ""
+        // Проверяем каждую группу на существование
+        for trimmedGroupName in newGroups {
+            let groupExists = availableGroups.contains { $0.name.uppercased() == trimmedGroupName.uppercased() } ||
+                             createdGroups.contains { $0.uppercased() == trimmedGroupName.uppercased() }
+            
+            if groupExists {
+                showGroupExistsAlert(groupName: trimmedGroupName)
+                return
+            }
+            
+            createdGroups.append(trimmedGroupName)
+            onCreateGroup?(trimmedGroupName)
+        }
         
-        // Обновляем placeholder с количеством созданных групп
-        let groupCount = createdGroups.count
-        createGroupField.attributedPlaceholder = NSAttributedString(
-            string: "Создано групп: \(groupCount). Добавить еще?",
-            attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.8)]
+        createGroupField.text = ""
+        updateCreateGroupPlaceholder()
+        
+        print("Группы добавлены локально: \(newGroups)")
+        print("Всего групп для создания: \(createdGroups)")
+    }
+    
+    private func showGroupExistsAlert(groupName: String) {
+        let alert = UIAlertController(
+            title: "Группа уже существует",
+            message: "Группа \"\(groupName)\" уже создана",
+            preferredStyle: .alert
         )
         
-        print("Созданные группы: \(createdGroups)")
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        if let parentViewController = self.findViewController() {
+            parentViewController.present(alert, animated: true)
+        }
+    }
+    
+    private func updateCreateGroupPlaceholder() {
+        let groupCount = createdGroups.count
+        let placeholderText = groupCount == 0 ? 
+            "Введите название группы" : 
+            "Создано групп: \(groupCount). Добавить еще?"
+        
+        createGroupField.attributedPlaceholder = NSAttributedString(
+            string: placeholderText,
+            attributes: [.foregroundColor: UIColor.secondaryTextApp]
+        )
+    }
+    
+    // MARK: - Public Methods
+    func updateAvailableGroups(_ groups: [Group]) {
+        availableGroups = groups
+        
+        if availableGroups.isEmpty {
+            groupButton.setTitle("Нет доступных групп", for: .normal)
+            groupButton.setTitleColor(.secondaryTextApp, for: .normal)
+            groupButton.isEnabled = false
+        } else {
+            groupButton.setTitle("Выберите группу", for: .normal)
+            groupButton.setTitleColor(.secondaryTextApp, for: .normal)
+            groupButton.isEnabled = true
+        }
     }
     
     @objc private func buttonTouchUp() {
@@ -460,7 +563,7 @@ final class RegistrationView: UIView {
         
         var groups: [String] = []
         
-        if roleSwitch.selectedSegmentIndex == 0 { // Студент
+        if roleSwitch.selectedSegmentIndex == 0 {
             if let selectedGroup = groupButton.titleLabel?.text, selectedGroup != "Выберите группу" {
                 groups = [selectedGroup]
             }

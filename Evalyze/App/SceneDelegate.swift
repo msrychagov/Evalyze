@@ -11,14 +11,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow()
         window.windowScene = windowScene
-        let root = AuthenticationViewController()
-        window.rootViewController = root
+        
+        // Проверяем, есть ли сохраненный пользователь в UserDefaults
+        if let savedUser = UserManager.shared.getCurrentUser() {
+            print("Found saved user: \(savedUser.fullName) - showing dashboard")
+            // Показываем dashboard, если пользователь уже залогинен
+            let dashboardVC = DashboardViewController()
+            let navigationController = UINavigationController(rootViewController: dashboardVC)
+            window.rootViewController = navigationController
+        } else {
+            print("No saved user found - showing authentication")
+            // Показываем экран аутентификации
+            let authViewController = AuthenticationAssembly.createModule()
+            window.rootViewController = authViewController
+        }
+        
+        window.overrideUserInterfaceStyle = .dark
+        
         self.window = window
         window.makeKeyAndVisible()
     }
@@ -31,13 +43,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        window?.viewWithTag(9999)?.removeFromSuperview()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
+        let blurEffect = UIBlurEffect(style: .dark)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = window?.bounds ?? .zero
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blurView.tag = 9999
+        window?.addSubview(blurView)
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
@@ -53,7 +68,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
-
-
 }
-
